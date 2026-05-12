@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="DataLayer/DataLayer.csproj" />
+  <Project Path="WorldCupForms/WorldCupForms.csproj" />
+  <Project Path="WorldCupWPF/WorldCupWPF.csproj" />
+</Solution>
