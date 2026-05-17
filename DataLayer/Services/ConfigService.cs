@@ -9,22 +9,31 @@ namespace DataLayer.Services
 {
     public class ConfigService
     {
-        private readonly string _configPath = Path.Combine(
-            AppDomain.CurrentDomain.BaseDirectory,
-            "Resources", "Сonfig", "config.txt");
+        private readonly string _configPath = 
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, 
+                "Resources", "Config", "config.txt");
 
         public ConfigService()
         {
-            if (!File.Exists(_configPath))
+            try
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(_configPath)!);
-                File.WriteAllText(_configPath, "FILE");
-                IsAPI = false;
-                return;
-            }
+                if (!File.Exists(_configPath))
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(_configPath)!);
+                    File.WriteAllText(_configPath, "FILE");
+                    IsAPI = false;
+                    return;
+                }
 
-            string val = File.ReadAllText(_configPath).Trim();
-            IsAPI = val.Equals("API");
+                string val = File.ReadAllText(_configPath).Trim().ToUpper();
+                System.Diagnostics.Debug.WriteLine($"File content: '{val}' - Result: {val.Equals("API")}");
+                IsAPI = val.Equals("API");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CONFIG ERROR: {ex.Message}");
+                IsAPI = false;
+            }
         }
 
         public bool IsAPI { get; private set; }

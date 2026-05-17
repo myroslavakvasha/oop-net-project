@@ -17,5 +17,16 @@ namespace DataLayer.Models
 
         [JsonPropertyName("ordered_teams")]
         public List<Team> OrderedTeams { get; set; } = new();
+
+        public override bool Equals(object? obj)
+        {
+            return obj is Group group &&
+                   Id == group.Id;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Id);
+        }
     }
 }

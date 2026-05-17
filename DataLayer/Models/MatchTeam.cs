@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace DataLayer.Models.SubModels
+namespace DataLayer.Models
 {
     public class MatchTeam
     {

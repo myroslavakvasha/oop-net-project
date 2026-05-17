@@ -1,6 +1,5 @@
 ﻿using DataLayer.Converters;
 using DataLayer.Models.Enums;
-using DataLayer.Models.SubModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +11,7 @@ using System.Timers;
 
 namespace DataLayer.Models
 {
-    public class Match
+    public class Match : IComparable<Match>
     {
         [JsonPropertyName("venue")]
         public string Venue { get; set; } = string.Empty;
@@ -84,5 +83,22 @@ namespace DataLayer.Models
 
         [JsonPropertyName("last_score_update_at")]
         public DateTimeOffset? LastScoreUpdateAt { get; set; }
+
+        // "Create a ranking list of the number of visitors for a specific match"
+        public int CompareTo(Match? other)
+        {
+            return this.Attendance.CompareTo(other.Attendance);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is Match match &&
+                   FifaId == match.FifaId;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(FifaId);
+        }
     }
 }

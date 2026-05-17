@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace DataLayer.Models.SubModels
+namespace DataLayer.Models
 {
     public class Player
     {
@@ -23,5 +23,17 @@ namespace DataLayer.Models.SubModels
         [JsonPropertyName("position")]
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public Position Position { get; set; }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is Player player &&
+                   Name == player.Name &&
+                   ShirtNumber == player.ShirtNumber;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Name, ShirtNumber);
+        }
     }
 }

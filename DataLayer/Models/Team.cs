@@ -51,5 +51,18 @@ namespace DataLayer.Models
 
         [JsonPropertyName("goal_differential")]
         public int GoalDifferential { get; set; }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is Team team &&
+                   Id == team.Id;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Id);
+        }
+
+        public override string ToString() => $"{Country} ({FifaCode})";
     }
 }
