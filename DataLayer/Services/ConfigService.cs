@@ -9,9 +9,10 @@ namespace DataLayer.Services
 {
     public class ConfigService
     {
-        private readonly string _configPath = 
-            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, 
-                "Resources", "Config", "config.txt");
+        private readonly string _configPath = Path.GetFullPath(
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                "..", "..", "..", "..", "DataLayer", "Resources", "Config", "config.txt")
+        );
 
         public ConfigService()
         {

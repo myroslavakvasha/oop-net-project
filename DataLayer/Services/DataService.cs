@@ -70,7 +70,9 @@ namespace DataLayer.Services
 
             var playerMap = new Dictionary<string, PlayerRankingModel>();
             var matchRankings = new List<MatchRankingModel>();
-            var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            string sharedImgFolder = Path.GetFullPath(
+    Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", "DataLayer", "Resources", "img", "players")
+);
             string currentGender = _selections.Gender?.ToLower() ?? "male";
 
             foreach (var match in teamMatches)
@@ -96,8 +98,8 @@ namespace DataLayer.Services
                     {
                         if (!playerMap.ContainsKey(p.Name))
                         {
-                            var customImg = Path.Combine(baseDir, "Resources", "img", "players", $"{currentGender}_{fifaCode}_{p.ShirtNumber}.png");
-                            var defaultImg = Path.Combine(baseDir, "Resources", "img", "players", "default.png");
+                            var customImg = Path.Combine(sharedImgFolder, $"{currentGender}_{fifaCode}_{p.ShirtNumber}.png");
+                            var defaultImg = Path.Combine(sharedImgFolder, "default.png");
 
                             playerMap[p.Name] = new PlayerRankingModel
                             {

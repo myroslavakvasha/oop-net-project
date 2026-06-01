@@ -1,4 +1,6 @@
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupForms\bin\Debug\net8.0-windows\Resources\Config\config.txt
+C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupForms\bin\Debug\net8.0-windows\Resources\img\pitch.png
+C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupForms\bin\Debug\net8.0-windows\Resources\img\players\default.png
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupForms\bin\Debug\net8.0-windows\Resources\Json\men\group_results.json
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupForms\bin\Debug\net8.0-windows\Resources\Json\men\matches.json
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupForms\bin\Debug\net8.0-windows\Resources\Json\men\results.json
@@ -16,6 +18,10 @@ C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupForms\bin
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupForms\bin\Debug\net8.0-windows\DataLayer.pdb
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupForms\obj\Debug\net8.0-windows\WorldCupForms.csproj.AssemblyReference.cache
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupForms\obj\Debug\net8.0-windows\WorldCupForms.MainForm.resources
+C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupForms\obj\Debug\net8.0-windows\WorldCupForms.PlayerCardControl.resources
+C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupForms\obj\Debug\net8.0-windows\WorldCupForms.Properties.Resources.resources
+C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupForms\obj\Debug\net8.0-windows\WorldCupForms.RankingsForm.resources
+C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupForms\obj\Debug\net8.0-windows\WorldCupForms.SettingsForm.resources
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupForms\obj\Debug\net8.0-windows\WorldCupForms.StartupForm.resources
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupForms\obj\Debug\net8.0-windows\WorldCupForms.csproj.GenerateResource.cache
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupForms\obj\Debug\net8.0-windows\WorldCupForms.GeneratedMSBuildEditorConfig.editorconfig
@@ -29,8 +35,3 @@ C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupForms\obj
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupForms\obj\Debug\net8.0-windows\WorldCupForms.pdb
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupForms\obj\Debug\net8.0-windows\WorldCupForms.genruntimeconfig.cache
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupForms\obj\Debug\net8.0-windows\ref\WorldCupForms.dll
-C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupForms\obj\Debug\net8.0-windows\WorldCupForms.Properties.Resources.resources
-C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupForms\obj\Debug\net8.0-windows\WorldCupForms.PlayerCardControl.resources
-C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupForms\bin\Debug\net8.0-windows\Resources\img\players\default.png
-C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupForms\obj\Debug\net8.0-windows\WorldCupForms.SettingsForm.resources
-C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupForms\obj\Debug\net8.0-windows\WorldCupForms.RankingsForm.resources

@@ -7,7 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Resources\Appsettings\**" />
+    <EmbeddedResource Remove="Resources\Appsettings\**" />
+    <None Remove="Resources\Appsettings\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Resources\Config\config.txt" />
+    <None Remove="Resources\img\pitch.png" />
     <None Remove="Resources\img\players\default.png" />
     <None Remove="Resources\Json\men\group_results.json" />
     <None Remove="Resources\Json\men\matches.json" />
@@ -20,7 +27,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Resources\Appsettings\selections.txt" />
     <Content Include="Resources\Config\config.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\img\pitch.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\img\players\default.png">
@@ -50,10 +61,6 @@
     <Content Include="Resources\Json\women\teams.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Resources\Appsettings\" />
   </ItemGroup>
 
 </Project>

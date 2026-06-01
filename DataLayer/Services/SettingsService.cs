@@ -8,9 +8,10 @@ namespace DataLayer.Services
 {
     public class SettingsService
     {
-        private readonly string _path = Path.Combine(
-            AppDomain.CurrentDomain.BaseDirectory,
-            "Resources", "Appsettings", "settings.txt");
+        private readonly string _path = Path.GetFullPath(
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                "..", "..", "..", "..", "DataLayer", "Resources", "Appsettings", "settings.txt")
+        );
 
         public string Title { get; private set; } = "World Cup 2018";
         public bool IsFullScreen { get; private set; } = false;
@@ -23,7 +24,7 @@ namespace DataLayer.Services
             Load();
         }
 
-        private void Load()
+        public void Load()
         {
             Dictionary<string, string> lines = File.ReadAllLines(_path).ToDictionary(
                 x => x.Split("=")[0].Trim(),

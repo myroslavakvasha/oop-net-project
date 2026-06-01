@@ -23,6 +23,11 @@ namespace WorldCupForms
 
         public event EventHandler SelectionChanged;
 
+        // Central shared repository directory where images are shared between WinForms and WPF
+        private readonly string _sharedImgFolder = Path.GetFullPath(
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", "DataLayer", "Resources", "img", "players")
+        );
+
         public PlayerCardControl(Player player, bool isFavorite, string teamFifaCode, string gender)
         {
             InitializeComponent();
@@ -50,11 +55,9 @@ namespace WorldCupForms
         {
             try
             {
-                var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-
-                // UNIQUE FILENAME: e.g., male_ARG_10.png or female_ARG_10.png
-                var imagePath = Path.Combine(baseDir, "Resources", "img", "players", $"{_gender}_{teamFifaCode}_{Player.ShirtNumber}.png");
-                var defaultPath = Path.Combine(baseDir, "Resources", "img", "players", "default.png");
+                // TARGET SHARED DIR: e.g., DataLayer/Resources/img/players/male_ARG_10.png
+                var imagePath = Path.Combine(_sharedImgFolder, $"{_gender}_{teamFifaCode}_{Player.ShirtNumber}.png");
+                var defaultPath = Path.Combine(_sharedImgFolder, "default.png");
 
                 string pathToLoad = File.Exists(imagePath) ? imagePath : defaultPath;
 
@@ -85,7 +88,7 @@ namespace WorldCupForms
             uploadItem.Click += (s, e) => ChangePlayerPicture();
             menu.Items.Add(uploadItem);
 
-            // NEW: Feature 3: Remove Picture
+            // Feature 3: Remove Picture
             var removeItem = new ToolStripMenuItem("Remove player picture");
             removeItem.Click += (s, e) => RemovePlayerPicture();
             menu.Items.Add(removeItem);
@@ -99,13 +102,13 @@ namespace WorldCupForms
         {
             try
             {
-                var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                var imagePath = Path.Combine(baseDir, "Resources", "img", "players", $"{_teamFifaCode}_{Player.ShirtNumber}.png");
+                // FIXED PATH: Uses centralized shared directory and includes gender context prefix format string
+                var imagePath = Path.Combine(_sharedImgFolder, $"{_gender}_{_teamFifaCode}_{Player.ShirtNumber}.png");
 
                 // Check if a custom uploaded file actually exists
                 if (File.Exists(imagePath))
                 {
-                    // 1. Dispose the current active PictureBox image layout to unlock the file
+                    // 1. Dispose the current active PictureBox image layout to unlock the file handle context
                     pictureBox1.Image?.Dispose();
                     pictureBox1.Image = null;
 
@@ -139,17 +142,20 @@ namespace WorldCupForms
                 {
                     try
                     {
-                        var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                        var targetFolder = Path.Combine(baseDir, "Resources", "img", "players");
-                        // UPDATE THIS PATH TOO:
-                        var targetPath = Path.Combine(targetFolder, $"{_gender}_{_teamFifaCode}_{Player.ShirtNumber}.png");
+                        // FIXED PATH: Points to the shared centralized folder workspace space
+                        var targetPath = Path.Combine(_sharedImgFolder, $"{_gender}_{_teamFifaCode}_{Player.ShirtNumber}.png");
 
-                        Directory.CreateDirectory(targetFolder);
+                        // Ensure shared directory branch framework configuration exists
+                        Directory.CreateDirectory(_sharedImgFolder);
+
                         pictureBox1.Image?.Dispose();
                         pictureBox1.Image = null;
 
                         File.Copy(ofd.FileName, targetPath, overwrite: true);
+
+                        // Instantly refresh tracking layers
                         LoadImage(_teamFifaCode);
+                        MessageBox.Show("Player image saved successfully to shared resources!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     catch (Exception ex) { MessageBox.Show(ex.Message); }
                 }

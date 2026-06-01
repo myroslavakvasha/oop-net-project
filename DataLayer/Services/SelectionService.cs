@@ -86,9 +86,10 @@ namespace DataLayer.Services
 {
     public class SelectionService
     {
-        private readonly string _path = Path.Combine(
-            AppDomain.CurrentDomain.BaseDirectory,
-            "Resources", "Appsettings", "selections.txt");
+        private readonly string _path = Path.GetFullPath(
+            Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                "..", "..", "..", "..", "DataLayer", "Resources", "Appsettings", "selections.txt")
+        );
 
         public bool Exists => File.Exists(_path);
         public string Gender { get; private set; } = string.Empty;

@@ -5,8 +5,50 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WorldCupWPF"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="World Cup Statistics" Height="768" Width="1024"
+        WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
+        <Grid Grid.Row="0" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center">
+                <Label Content="Favorite Team:" FontWeight="Bold"/>
+                <ComboBox x:Name="cbFavTeam" DisplayMemberPath="Country" SelectionChanged="CbFavTeam_SelectionChanged"/>
+                <Button x:Name="btnFavTeamInfo" Content="Team Info" Margin="0,5,0,0" Height="30"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="30,0">
+                <TextBlock Text="VS" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"/>
+                <TextBlock x:Name="txtResult" Text="- : -" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" Foreground="DarkBlue" Margin="0,5"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="2" Orientation="Vertical" VerticalAlignment="Center">
+                <Label Content="Opponent Team:" FontWeight="Bold"/>
+                <ComboBox x:Name="cbOpponentTeam" DisplayMemberPath="Country" SelectionChanged="CbOpponentTeam_SelectionChanged"/>
+                <Button x:Name="btnOpponentTeamInfo" Content="Team Info" Margin="0,5,0,0" Height="30"/>
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="1" x:Name="pitchContainer" ClipToBounds="True">
+            <Image Source="pack://siteoforigin:,,,/Resources/img/pitch.png" Stretch="Fill"/>
+
+            <Canvas x:Name="pitchCanvas"/>
+
+            <Grid x:Name="loadingOverlay" Background="#80000000" Visibility="Collapsed">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <ProgressBar IsIndeterminate="True" Width="200" Height="20"/>
+                    <TextBlock Text="Loading data, please wait..." Foreground="White" Margin="0,10,0,0" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
     </Grid>
 </Window>

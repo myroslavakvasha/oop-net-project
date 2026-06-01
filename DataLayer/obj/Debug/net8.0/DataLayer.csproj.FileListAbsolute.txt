@@ -1,4 +1,6 @@
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\DataLayer\bin\Debug\net8.0\Resources\Config\config.txt
+C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\DataLayer\bin\Debug\net8.0\Resources\img\pitch.png
+C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\DataLayer\bin\Debug\net8.0\Resources\img\players\default.png
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\DataLayer\bin\Debug\net8.0\Resources\Json\men\group_results.json
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\DataLayer\bin\Debug\net8.0\Resources\Json\men\matches.json
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\DataLayer\bin\Debug\net8.0\Resources\Json\men\results.json
@@ -19,4 +21,3 @@ C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\DataLayer\obj\Deb
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\DataLayer\obj\Debug\net8.0\refint\DataLayer.dll
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\DataLayer\obj\Debug\net8.0\DataLayer.pdb
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\DataLayer\obj\Debug\net8.0\ref\DataLayer.dll
-C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\DataLayer\bin\Debug\net8.0\Resources\img\players\default.png
