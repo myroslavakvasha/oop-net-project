@@ -7,46 +7,77 @@
         mc:Ignorable="d"
         Title="World Cup Statistics" Height="768" Width="1024"
         WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
-    <Grid Margin="15">
+    <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Margin="0,0,0,15">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <Border Grid.Row="0" Background="#0C0C0C" BorderBrush="#000000" BorderThickness="0,0,0,1" Padding="15,6">
+            <Grid>
+                <Button x:Name="btnOpenSettings" Content="⚙ Settings" HorizontalAlignment="Right" Padding="8,4" FontSize="11" Background="#222222" Foreground="White" BorderBrush="#444444" Click="BtnOpenSettings_Click"/>
+            </Grid>
+        </Border>
 
-            <StackPanel Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center">
-                <Label Content="Favorite Team:" FontWeight="Bold"/>
-                <ComboBox x:Name="cbFavTeam" DisplayMemberPath="Country" SelectionChanged="CbFavTeam_SelectionChanged"/>
-                <Button x:Name="btnFavTeamInfo" Content="Team Info" Margin="0,5,0,0" Height="30"/>
-            </StackPanel>
+        <Border Grid.Row="1" Background="#121212" BorderBrush="#000000" BorderThickness="0,0,0,2" Padding="15,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="30,0">
-                <TextBlock Text="VS" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"/>
-                <TextBlock x:Name="txtResult" Text="- : -" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" Foreground="DarkBlue" Margin="0,5"/>
-            </StackPanel>
+                <Grid Grid.Column="0" VerticalAlignment="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Column="2" Orientation="Vertical" VerticalAlignment="Center">
-                <Label Content="Opponent Team:" FontWeight="Bold"/>
-                <ComboBox x:Name="cbOpponentTeam" DisplayMemberPath="Country" SelectionChanged="CbOpponentTeam_SelectionChanged"/>
-                <Button x:Name="btnOpponentTeamInfo" Content="Team Info" Margin="0,5,0,0" Height="30"/>
-            </StackPanel>
-        </Grid>
+                    <Label Grid.Row="0" Grid.ColumnSpan="2" Content="Favorite Team:" FontWeight="Bold" Foreground="#FFFFFF" Padding="0,0,0,4"/>
+                    <ComboBox x:Name="cbFavTeam" Grid.Row="1" Grid.Column="0" Height="32" VerticalContentAlignment="Center" Margin="0,0,6,0" SelectionChanged="CbFavTeam_SelectionChanged"/>
+                    <Button x:Name="btnFavTeamInfo" Grid.Row="1" Grid.Column="1" Content="Team Info" Width="90" Height="32" FontWeight="SemiBold" Click="BtnFavTeamInfo_Click"/>
+                </Grid>
 
-        <Grid Grid.Row="1" x:Name="pitchContainer" ClipToBounds="True">
-            <Image Source="pack://siteoforigin:,,,/Resources/img/pitch.png" Stretch="Fill"/>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="40,0" MinWidth="100">
+                    <TextBlock Text="VS" FontSize="14" FontWeight="Bold" Foreground="#555555" HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="txtResult" Text="- : -" FontSize="32" FontWeight="Black" Foreground="#FFFFFF" HorizontalAlignment="Center" Margin="0,2,0,0"/>
+                </StackPanel>
 
-            <Canvas x:Name="pitchCanvas"/>
+                <Grid Grid.Column="2" VerticalAlignment="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-            <Grid x:Name="loadingOverlay" Background="#80000000" Visibility="Collapsed">
+                    <Label Grid.Row="0" Grid.ColumnSpan="2" Content="Opponent Team:" FontWeight="Bold" Foreground="#FFFFFF" Padding="0,0,0,4"/>
+                    <ComboBox x:Name="cbOpponentTeam" Grid.Row="1" Grid.Column="0" Height="32" VerticalContentAlignment="Center" Margin="0,0,6,0" SelectionChanged="CbOpponentTeam_SelectionChanged"/>
+                    <Button x:Name="btnOpponentTeamInfo" Grid.Row="1" Grid.Column="1" Content="Team Info" Width="90" Height="32" FontWeight="SemiBold" Click="BtnOpponentTeamInfo_Click"/>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="2">
+            <Image x:Name="pitchImage" 
+                   Source="pack://siteoforigin:,,,/Resources/img/pitch.jpg" 
+                   Stretch="Fill"/>
+
+            <Canvas x:Name="pitchCanvas" 
+                    Width="{Binding ElementName=pitchImage, Path=ActualWidth}"
+                    Height="{Binding ElementName=pitchImage, Path=ActualHeight}"/>
+
+            <Grid x:Name="loadingOverlay" Background="#EA141414" Visibility="Collapsed">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <ProgressBar IsIndeterminate="True" Width="200" Height="20"/>
-                    <TextBlock Text="Loading data, please wait..." Foreground="White" Margin="0,10,0,0" HorizontalAlignment="Center"/>
+                    <ProgressBar IsIndeterminate="True" Width="220" Height="12" Foreground="#444444"/>
+                    <TextBlock Text="Loading tournament records..." Foreground="#FFFFFF" Margin="0,12,0,0" FontSize="14" HorizontalAlignment="Center" FontWeight="Medium"/>
                 </StackPanel>
             </Grid>
         </Grid>

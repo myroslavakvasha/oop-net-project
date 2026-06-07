@@ -13,6 +13,7 @@ namespace DataLayer.Services
                 "..", "..", "..", "..", "DataLayer", "Resources", "Appsettings", "settings.txt")
         );
 
+        public bool Exists => File.Exists(_path) && new FileInfo(_path).Length > 0;
         public string Title { get; private set; } = "World Cup 2018";
         public bool IsFullScreen { get; private set; } = false;
         public int Width { get; private set; } = 1280;
@@ -26,17 +27,29 @@ namespace DataLayer.Services
 
         public void Load()
         {
-            Dictionary<string, string> lines = File.ReadAllLines(_path).ToDictionary(
-                x => x.Split("=")[0].Trim(),
-                x => x.Split("=")[1].Trim()
-                );
+            if (!File.Exists(_path) || new FileInfo(_path).Length == 0) return;
 
-            Title = lines.GetValueOrDefault("TITLE", Title);
-            IsFullScreen = lines.GetValueOrDefault("FULLSCREEN", "false")
-                .Equals("true", StringComparison.OrdinalIgnoreCase);
+            try
+            {
+                var lines = File.ReadAllLines(_path)
+                    .Where(line => line.Contains("="))
+                    .ToDictionary(
+                        x => x.Split('=')[0].Trim().ToUpper(),
+                        x => x.Split('=')[1].Trim()
+                    );
 
-            if (int.TryParse(lines.GetValueOrDefault("WIDTH"), out int w)) Width = w;
-            if (int.TryParse(lines.GetValueOrDefault("HEIGHT"), out int h)) Height = h;
+                Title = lines.GetValueOrDefault("TITLE", "World Cup Statistics");
+                IsFullScreen = lines.GetValueOrDefault("FULLSCREEN", "false")
+                    .Equals("true", StringComparison.OrdinalIgnoreCase);
+
+                if (lines.ContainsKey("WIDTH") && int.TryParse(lines["WIDTH"], out int w)) Width = w;
+                if (lines.ContainsKey("HEIGHT") && int.TryParse(lines["HEIGHT"], out int h)) Height = h;
+            }
+            catch
+            {
+                // Fallback defaults if the file gets corrupted
+                Title = "World Cup Statistics";
+            }
         }
 
         public void Save(string title, bool isFullScreen, int width, int height)

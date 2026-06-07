@@ -14,46 +14,39 @@ namespace WorldCupWPF
         {
             base.OnStartup(e);
 
+            // Prevent WPF from shutting down when SettingsWindow closes
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
             var configService = new ConfigService();
             var selectionService = new SelectionService();
             var settingsService = new SettingsService();
 
-            // 1. If selection data doesn't exist, open settings instantly
-            if (!selectionService.Exists || string.IsNullOrEmpty(selectionService.Gender))
+            if (!selectionService.Exists || string.IsNullOrEmpty(selectionService.Gender) || !settingsService.Exists)
             {
-                SettingsWindow settingsDialog = new SettingsWindow(selectionService, settingsService);
-
-                bool? dialogResult = settingsDialog.ShowDialog();
-
-                // If they close or cancel, stop execution entirely
-                if (dialogResult != true)
+                var settingsDialog = new SettingsWindow(selectionService, settingsService);
+                if (settingsDialog.ShowDialog() != true)
                 {
-                    Application.Current.Shutdown();
+                    Shutdown();
                     return;
                 }
-
-                // Force refresh local data structures out of the text files immediately
                 selectionService.Load();
-                settingsService.Load(); // Ensure display metrics are updated too
+                settingsService.Load();
             }
 
-            // 2. AUTOMATIC TRANSITION: This runs immediately after settingsDialog returns true
-            MainWindow mainWindow = new MainWindow(configService, selectionService, settingsService);
+            var mainWindow = new MainWindow(configService, selectionService, settingsService);
+            mainWindow.WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
-            // Apply resolution configurations saved out of preferences 
             if (settingsService.IsFullScreen)
-            {
                 mainWindow.WindowState = WindowState.Maximized;
-                mainWindow.WindowStyle = WindowStyle.None;
-            }
             else
             {
-                // Fallback to saved preferences or sensible defaults
                 mainWindow.Width = settingsService.Width > 0 ? settingsService.Width : 1280;
                 mainWindow.Height = settingsService.Height > 0 ? settingsService.Height : 720;
             }
 
-            // Reveal the main dashboard window to the user
+            // Now hand control back to normal shutdown behavior
+            ShutdownMode = ShutdownMode.OnMainWindowClose;
+            Application.Current.MainWindow = mainWindow;
             mainWindow.Show();
         }
     }

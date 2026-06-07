@@ -1,5 +1,4 @@
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupWPF\bin\Debug\net8.0-windows\Resources\Config\config.txt
-C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupWPF\bin\Debug\net8.0-windows\Resources\img\pitch.png
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupWPF\bin\Debug\net8.0-windows\Resources\img\players\default.png
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupWPF\bin\Debug\net8.0-windows\Resources\Json\men\group_results.json
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupWPF\bin\Debug\net8.0-windows\Resources\Json\men\matches.json
@@ -36,3 +35,4 @@ C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupWPF\obj\D
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupWPF\obj\Debug\net8.0-windows\WorldCupWPF.pdb
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupWPF\obj\Debug\net8.0-windows\WorldCupWPF.genruntimeconfig.cache
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupWPF\obj\Debug\net8.0-windows\ref\WorldCupWPF.dll
+C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupWPF\bin\Debug\net8.0-windows\Resources\img\pitch.jpg
