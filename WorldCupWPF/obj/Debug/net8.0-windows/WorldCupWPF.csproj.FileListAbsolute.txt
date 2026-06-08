@@ -36,3 +36,5 @@ C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupWPF\obj\D
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupWPF\obj\Debug\net8.0-windows\WorldCupWPF.genruntimeconfig.cache
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupWPF\obj\Debug\net8.0-windows\ref\WorldCupWPF.dll
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupWPF\bin\Debug\net8.0-windows\Resources\img\pitch.jpg
+C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupWPF\obj\Debug\net8.0-windows\TeamInfoWindow.baml
+C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupWPF\obj\Debug\net8.0-windows\TeamInfoWindow.g.cs

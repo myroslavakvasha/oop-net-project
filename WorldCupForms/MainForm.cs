@@ -17,7 +17,9 @@ namespace WorldCupForms
         private readonly ConfigService _configService;
         private readonly DataService _dataService;
         private readonly SelectionService _selectionService;
+        private readonly SettingsService _settingsService; // 1. Shared configuration layer reference
         private bool _isReloading = false;
+
         public MainForm()
         {
             InitializeComponent();
@@ -31,8 +33,10 @@ namespace WorldCupForms
             flpFavorites.DragDrop += FavoritesPanel_DragDrop;
             flpAllPlayers.DragDrop += AllPlayersPanel_DragDrop;
 
+            // Initialize services
             _configService = new ConfigService();
             _selectionService = new SelectionService();
+            _settingsService = new SettingsService(); // 2. Instantiated configuration layout engine
             _dataService = new DataService(_configService, _selectionService);
         }
 
@@ -42,6 +46,10 @@ namespace WorldCupForms
 
             try
             {
+                // 3. Force read the physical text configuration parameters and update form boundary title
+                _settingsService.Load();
+                this.Text = _settingsService.Title;
+
                 var teams = await _dataService.GetTeamsAsync();
                 var orderedTeams = teams.OrderBy(x => x.Country).ToList();
 
@@ -143,6 +151,7 @@ namespace WorldCupForms
                 SetLoading(false);
             }
         }
+
         private void OnFavoriteToggled(object? sender, Player player)
         {
             var currentTeam = _selectionService.Team;
@@ -187,6 +196,7 @@ namespace WorldCupForms
                 }
             }
         }
+
         private void Panel_DragEnter(object? sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(typeof(PlayerCardControl)))
@@ -264,10 +274,14 @@ namespace WorldCupForms
                     // Activate our safety guard flag
                     _isReloading = true;
 
-                    // 1. Force SelectionService to reload from the text file
+                    // 4. Force settings configuration layers to reload properties from file system limits
+                    _settingsService.Load();
                     _selectionService.Load();
 
-                    // 2. Completely clean out the UI layout components to avoid remnants
+                    // 5. Update form title layer explicitly with updated properties text string 
+                    this.Text = _settingsService.Title;
+
+                    // Completely clean out the UI layout components to avoid remnants
                     flpFavorites.Controls.Clear();
                     flpAllPlayers.Controls.Clear();
 
@@ -382,5 +396,4 @@ namespace WorldCupForms
             }
         }
     }
-
 }

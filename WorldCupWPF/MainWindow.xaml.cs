@@ -24,6 +24,29 @@ namespace WorldCupWPF
             _configService = configService;
             _selectionService = selectionService;
             _settingsService = settingsService;
+
+            this.StateChanged += MainWindow_StateChanged;
+        }
+
+        // fullscreen handle
+        private void MainWindow_StateChanged(object? sender, EventArgs e)
+        {
+            if (this.WindowState == WindowState.Maximized)
+            {
+                _settingsService.Save(_settingsService.Title, true, _settingsService.Width, _settingsService.Height);
+            }
+            else if (this.WindowState == WindowState.Normal)
+            {
+                // Capture the standard running restoration size coordinates 
+                int restoredWidth = (int)this.ActualWidth;
+                int restoredHeight = (int)this.ActualHeight;
+
+                // Fallback safety filter just in case metrics load before layout initialization sets values
+                if (restoredWidth > 0 && restoredHeight > 0)
+                {
+                    _settingsService.Save(_settingsService.Title, false, restoredWidth, restoredHeight);
+                }
+            }
         }
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
@@ -51,6 +74,19 @@ namespace WorldCupWPF
                 // Re-instantiate DataService so it binds dynamically to the updated configuration
                 _dataService = new DataService(_configService, _selectionService);
                 System.Diagnostics.Debug.WriteLine($"Active Championship: {_selectionService.Gender}");
+
+                // DYNAMIC HEADER TEXT UPDATE: Reads current gender data state and formats it cleanly
+                if (!string.IsNullOrEmpty(_selectionService.Gender))
+                {
+                    if (_selectionService.Gender.Equals("male", StringComparison.OrdinalIgnoreCase))
+                    {
+                        txtChampionshipName.Text = "Male World Cup 2018";
+                    }
+                    else if (_selectionService.Gender.Equals("female", StringComparison.OrdinalIgnoreCase))
+                    {
+                        txtChampionshipName.Text = "Female World Cup 2019";
+                    }
+                }
 
                 // Fetch data cleanly from the backend service layers
                 var teams = await _dataService.GetTeamsAsync();
@@ -147,9 +183,15 @@ namespace WorldCupWPF
         }
 
         // --- HELPER METHOD: ENFORCES VISUALS IMMEDIATELY ---
+        // --- HELPER METHOD: ENFORCES VISUALS IMMEDIATELY ---
+        // --- HELPER METHOD: ENFORCES VISUALS IMMEDIATELY ---
         private void ApplyApplicationDisplaySettings()
         {
             this.Title = _settingsService.Title;
+            this.WindowStyle = WindowStyle.SingleBorderWindow;
+
+            // CRITICAL FIX: Unhook the event listener so state changes don't overwrite our values mid-resize
+            this.StateChanged -= MainWindow_StateChanged;
 
             if (_settingsService.IsFullScreen)
             {
@@ -157,17 +199,23 @@ namespace WorldCupWPF
             }
             else
             {
+                // 1. Drop out of Maximized state safely
                 this.WindowState = WindowState.Normal;
+
+                // 2. Explicitly force the target configuration parameters
                 this.Width = _settingsService.Width;
                 this.Height = _settingsService.Height;
 
-                // Force center calculation based on active primary screen dimensions
+                // 3. Center the window viewport coordinates on the monitor
                 double screenWidth = SystemParameters.PrimaryScreenWidth;
                 double screenHeight = SystemParameters.PrimaryScreenHeight;
 
                 this.Left = (screenWidth - this.Width) / 2;
                 this.Top = (screenHeight - this.Height) / 2;
             }
+
+            // CRITICAL FIX: Re-hook the event listener now that sizes are cleanly updated
+            this.StateChanged += MainWindow_StateChanged;
         }
 
         private async void CbFavTeam_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -184,6 +232,7 @@ namespace WorldCupWPF
                 await LoadOpponentsAsync(selectedTeam.FifaCode);
             }
         }
+
         private async Task LoadOpponentsAsync(string favTeamFifaCode)
         {
             // Double check that we actually have a valid code to look up
@@ -276,8 +325,44 @@ namespace WorldCupWPF
             }
         }
 
+        private void BtnFavTeamInfo_Click(object sender, RoutedEventArgs e)
+        {
+            if (cbFavTeam.SelectedItem is Team selectedTeam)
+            {
+                // 1. Turn on the background blur/dim filter
+                DimOverlay.Visibility = Visibility.Visible;
 
-        private void BtnFavTeamInfo_Click(object sender, RoutedEventArgs e) { /* Open info window */ }
-        private void BtnOpponentTeamInfo_Click(object sender, RoutedEventArgs e) { /* Open info window */ }
+                TeamInfoWindow infoWin = new TeamInfoWindow(selectedTeam);
+                infoWin.Owner = this;
+                infoWin.ShowDialog();
+
+                // 2. Turn off the dimming filter once the popup is closed
+                DimOverlay.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                MessageBox.Show("Please select a favorite national team first.", "Selection Required", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private void BtnOpponentTeamInfo_Click(object sender, RoutedEventArgs e)
+        {
+            if (cbOpponentTeam.SelectedItem is Team selectedTeam)
+            {
+                // 1. Turn on the background blur/dim filter
+                DimOverlay.Visibility = Visibility.Visible;
+
+                TeamInfoWindow infoWin = new TeamInfoWindow(selectedTeam);
+                infoWin.Owner = this;
+                infoWin.ShowDialog();
+
+                // 2. Turn off the dimming filter once the popup is closed
+                DimOverlay.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                MessageBox.Show("Please select an opponent national team first.", "Selection Required", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
     }
 }
