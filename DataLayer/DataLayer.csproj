@@ -28,7 +28,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Resources\Appsettings\selections.txt" />
     <Content Include="Resources\Config\config.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -62,6 +61,10 @@
     <Content Include="Resources\Json\women\teams.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Resources\Appsettings\" />
   </ItemGroup>
 
 </Project>

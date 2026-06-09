@@ -94,7 +94,8 @@ namespace WorldCupForms
 
             if (cbTeams.SelectedItem is Team selected)
             {
-                _selectionService.Save(_selectionService.Gender, selected.FifaCode, _selectionService.FavoritesByTeam);
+                // FIX: Added string.Empty as the 3rd argument for the opponent slot
+                _selectionService.Save(_selectionService.Gender, selected.FifaCode, string.Empty, _selectionService.FavoritesByTeam);
                 await LoadTeamDataAsync(selected);
             }
         }

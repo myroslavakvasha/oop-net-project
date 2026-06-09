@@ -1,11 +1,12 @@
-﻿using System;
+﻿using DataLayer.Models;
+using DataLayer.Models.Enums;
+using DataLayer.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using DataLayer.Models;
-using DataLayer.Services;
 
 namespace WorldCupWPF
 {
@@ -17,6 +18,10 @@ namespace WorldCupWPF
         private DataService _dataService;
 
         private bool _isInitialLoading = true;
+        private Match _currentActiveMatch = null;
+        private bool _isResizingLayout = false;
+        public Match CurrentActiveMatch => _currentActiveMatch;
+        public Grid MainWindowDimOverlay => DimOverlay;
 
         public MainWindow(ConfigService configService, SelectionService selectionService, SettingsService settingsService)
         {
@@ -26,9 +31,17 @@ namespace WorldCupWPF
             _settingsService = settingsService;
 
             this.StateChanged += MainWindow_StateChanged;
+
+            pitchCanvas.SizeChanged += (s, e) => {
+                if (_currentActiveMatch != null && cbFavTeam.SelectedItem is Team favTeam)
+                {
+                    _isResizingLayout = true; // Block UI dropdown events from doing damage
+                    DrawLineupOnPitch(_currentActiveMatch, favTeam.FifaCode);
+                    _isResizingLayout = false; // Release the block
+                }
+            };
         }
 
-        // fullscreen handle
         private void MainWindow_StateChanged(object? sender, EventArgs e)
         {
             if (this.WindowState == WindowState.Maximized)
@@ -37,11 +50,9 @@ namespace WorldCupWPF
             }
             else if (this.WindowState == WindowState.Normal)
             {
-                // Capture the standard running restoration size coordinates 
                 int restoredWidth = (int)this.ActualWidth;
                 int restoredHeight = (int)this.ActualHeight;
 
-                // Fallback safety filter just in case metrics load before layout initialization sets values
                 if (restoredWidth > 0 && restoredHeight > 0)
                 {
                     _settingsService.Save(_settingsService.Title, false, restoredWidth, restoredHeight);
@@ -51,51 +62,33 @@ namespace WorldCupWPF
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            // 1. Force the settings service to explicitly pull the saved WPF text file parameters
             _settingsService.Load();
-
-            // 2. Instantly apply those specific layout values to the active window wrapper
             ApplyApplicationDisplaySettings();
-
-            // 3. Keep your existing selection structural startup data running
             _selectionService.Load();
 
-            // 4. Populate teams data from the underlying service configurations
             await LoadTournamentDataAsync();
         }
 
-        // --- CORE REUSE STRATEGY FOR REFRESHING DATA ---
         private async Task LoadTournamentDataAsync()
         {
             try
             {
                 loadingOverlay.Visibility = Visibility.Visible;
-
-                // Re-instantiate DataService so it binds dynamically to the updated configuration
                 _dataService = new DataService(_configService, _selectionService);
-                System.Diagnostics.Debug.WriteLine($"Active Championship: {_selectionService.Gender}");
 
-                // DYNAMIC HEADER TEXT UPDATE: Reads current gender data state and formats it cleanly
                 if (!string.IsNullOrEmpty(_selectionService.Gender))
                 {
                     if (_selectionService.Gender.Equals("male", StringComparison.OrdinalIgnoreCase))
-                    {
                         txtChampionshipName.Text = "Male World Cup 2018";
-                    }
                     else if (_selectionService.Gender.Equals("female", StringComparison.OrdinalIgnoreCase))
-                    {
                         txtChampionshipName.Text = "Female World Cup 2019";
-                    }
                 }
 
-                // Fetch data cleanly from the backend service layers
                 var teams = await _dataService.GetTeamsAsync();
                 var orderedTeams = teams.OrderBy(t => t.Country).ToList();
 
-                // Bind elements to UI Dropdowns
                 cbFavTeam.ItemsSource = orderedTeams;
 
-                // Handle pre-selection behaviors inherited across applications
                 if (!string.IsNullOrEmpty(_selectionService.Team))
                 {
                     var savedTeam = orderedTeams.FirstOrDefault(t => t.FifaCode == _selectionService.Team);
@@ -103,6 +96,18 @@ namespace WorldCupWPF
                     {
                         cbFavTeam.SelectedItem = savedTeam;
                         await LoadOpponentsAsync(savedTeam.FifaCode);
+
+                        // RESTORE OPPONENT SELECTION FROM FILE:
+                        if (!string.IsNullOrEmpty(_selectionService.OpponentTeam))
+                        {
+                            var savedOpponent = (cbOpponentTeam.ItemsSource as List<Team>)?
+                                .FirstOrDefault(t => t.FifaCode == _selectionService.OpponentTeam);
+
+                            if (savedOpponent != null)
+                            {
+                                cbOpponentTeam.SelectedItem = savedOpponent;
+                            }
+                        }
                     }
                 }
 
@@ -118,34 +123,17 @@ namespace WorldCupWPF
             }
         }
 
-        // --- SETTINGS DECK WINDOW TRIGGER ---
         private async void BtnOpenSettings_Click(object sender, RoutedEventArgs e)
         {
-            // Extract the currently selected team's FIFA code from the ComboBox
-            string currentFifaCode = string.Empty;
-            if (cbFavTeam.SelectedItem is Team selectedTeam)
-            {
-                currentFifaCode = selectedTeam.FifaCode;
-            }
-            else if (!string.IsNullOrEmpty(_selectionService.Team))
-            {
-                // Fallback if UI hasn't fully registered selection yet
-                currentFifaCode = _selectionService.Team;
-            }
-
-            // Pass the current team code as the 3rd argument
             SettingsWindow settingsWin = new SettingsWindow(_selectionService, _settingsService);
 
             if (settingsWin.ShowDialog() == true)
             {
-                // Force sync physical text file states into live configuration service layers
                 _settingsService.Load();
                 _selectionService.Load();
 
-                // Redraw display viewport geometry limits and update task text fields immediately
                 ApplyApplicationDisplaySettings();
 
-                // Safely clean structural state objects to prevent calculation crashes during reset
                 cbFavTeam.SelectionChanged -= CbFavTeam_SelectionChanged;
                 cbOpponentTeam.SelectionChanged -= CbOpponentTeam_SelectionChanged;
 
@@ -159,38 +147,28 @@ namespace WorldCupWPF
                 cbFavTeam.SelectionChanged += CbFavTeam_SelectionChanged;
                 cbOpponentTeam.SelectionChanged += CbOpponentTeam_SelectionChanged;
 
-                // Fire async asset update task chain to reload current Gender parameters
                 await LoadTournamentDataAsync();
             }
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
-            // Setting the default button to 'Button1' (which is 'Yes') forces 
-            // the Enter key to automatically execute the exit sequence.
             MessageBoxResult result = MessageBox.Show(
                 "Are you sure you want to exit the application?",
                 "Confirm Exit",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question,
-                MessageBoxResult.Yes // <- Focuses 'Yes'. Enter now exits!
+                MessageBoxResult.Yes
             );
 
-            if (result != MessageBoxResult.Yes)
-            {
-                e.Cancel = true;
-            }
+            if (result != MessageBoxResult.Yes) e.Cancel = true;
         }
 
-        // --- HELPER METHOD: ENFORCES VISUALS IMMEDIATELY ---
-        // --- HELPER METHOD: ENFORCES VISUALS IMMEDIATELY ---
-        // --- HELPER METHOD: ENFORCES VISUALS IMMEDIATELY ---
         private void ApplyApplicationDisplaySettings()
         {
             this.Title = _settingsService.Title;
             this.WindowStyle = WindowStyle.SingleBorderWindow;
 
-            // CRITICAL FIX: Unhook the event listener so state changes don't overwrite our values mid-resize
             this.StateChanged -= MainWindow_StateChanged;
 
             if (_settingsService.IsFullScreen)
@@ -199,14 +177,10 @@ namespace WorldCupWPF
             }
             else
             {
-                // 1. Drop out of Maximized state safely
                 this.WindowState = WindowState.Normal;
-
-                // 2. Explicitly force the target configuration parameters
                 this.Width = _settingsService.Width;
                 this.Height = _settingsService.Height;
 
-                // 3. Center the window viewport coordinates on the monitor
                 double screenWidth = SystemParameters.PrimaryScreenWidth;
                 double screenHeight = SystemParameters.PrimaryScreenHeight;
 
@@ -214,58 +188,61 @@ namespace WorldCupWPF
                 this.Top = (screenHeight - this.Height) / 2;
             }
 
-            // CRITICAL FIX: Re-hook the event listener now that sizes are cleanly updated
             this.StateChanged += MainWindow_StateChanged;
         }
 
         private async void CbFavTeam_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // Safety check: skip if layout is dropping its bindings during initialization/reloads
-            if (cbFavTeam.SelectedItem == null || _isInitialLoading) return;
+            // If we are loading initially or the selection is genuinely null, stop.
+            if (_isInitialLoading || cbFavTeam.SelectedItem == null) return;
+
+            // Safety check: WPF fires this during resize with 0 removed items quite often when resetting layout context.
+            // If the selection didn't actually change from a previous selection, don't wipe the file!
+            if (e.RemovedItems.Count == 0 && !string.IsNullOrEmpty(_selectionService.OpponentTeam))
+            {
+                return;
+            }
 
             if (cbFavTeam.SelectedItem is Team selectedTeam)
             {
-                // JUST LIKE WINFORMS: Save immediately when the team selection drops down
-                _selectionService.Save(_selectionService.Gender, selectedTeam.FifaCode, _selectionService.FavoritesByTeam);
+                // Check if the team selection is actually different from what's already saved.
+                // If it's the SAME team (just re-firing due to resize), KEEP the current opponent!
+                string opponentToSave = string.Empty;
+                if (_selectionService.Team == selectedTeam.FifaCode)
+                {
+                    opponentToSave = _selectionService.OpponentTeam;
+                }
 
-                // Load the visual opponents matching this team context
+                // Save safely without forcing a blind string.Empty wipe
+                _selectionService.Save(_selectionService.Gender, selectedTeam.FifaCode, opponentToSave, _selectionService.FavoritesByTeam);
+
                 await LoadOpponentsAsync(selectedTeam.FifaCode);
             }
         }
 
         private async Task LoadOpponentsAsync(string favTeamFifaCode)
         {
-            // Double check that we actually have a valid code to look up
             if (string.IsNullOrEmpty(favTeamFifaCode)) return;
 
             try
             {
-                // 1. Fetch all matches involving the favorite team
                 var matches = await _dataService.GetMatchesByTeamAsync(favTeamFifaCode);
                 var opponentTeams = new List<Team>();
 
-                // 2. Loop through the matches to find who they played against
                 foreach (var match in matches)
                 {
-                    // Determine if your favorite team was Home or Away, then grab the opposite team
-                    if (match.HomeTeam.Code.Equals(favTeamFifaCode, StringComparison.OrdinalIgnoreCase))
+                    var allTeams = cbFavTeam.ItemsSource as List<Team>;
+                    string targetCode = match.HomeTeam.Code.Equals(favTeamFifaCode, StringComparison.OrdinalIgnoreCase)
+                        ? match.AwayTeam.Code
+                        : match.HomeTeam.Code;
+
+                    var opponent = allTeams?.FirstOrDefault(t => t.FifaCode.Equals(targetCode, StringComparison.OrdinalIgnoreCase));
+                    if (opponent != null && !opponentTeams.Any(t => t.FifaCode == opponent.FifaCode))
                     {
-                        // We need to fetch the full Team object matching match.AwayTeam.Code from your master dataset
-                        var allTeams = cbFavTeam.ItemsSource as List<Team>;
-                        var opponent = allTeams?.FirstOrDefault(t => t.FifaCode.Equals(match.AwayTeam.Code, StringComparison.OrdinalIgnoreCase));
-                        if (opponent != null && !opponentTeams.Any(t => t.FifaCode == opponent.FifaCode))
-                            opponentTeams.Add(opponent);
-                    }
-                    else
-                    {
-                        var allTeams = cbFavTeam.ItemsSource as List<Team>;
-                        var opponent = allTeams?.FirstOrDefault(t => t.FifaCode.Equals(match.HomeTeam.Code, StringComparison.OrdinalIgnoreCase));
-                        if (opponent != null && !opponentTeams.Any(t => t.FifaCode == opponent.FifaCode))
-                            opponentTeams.Add(opponent);
+                        opponentTeams.Add(opponent);
                     }
                 }
 
-                // 3. Bind the clean opponents list back to the UI dropdown
                 cbOpponentTeam.ItemsSource = opponentTeams.OrderBy(t => t.Country).ToList();
             }
             catch (Exception ex)
@@ -276,9 +253,16 @@ namespace WorldCupWPF
 
         private async void CbOpponentTeam_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // SAFETY CIRCUIT BREAKER: Stop executing if selections are wiped out during a settings reload
-            if (cbFavTeam.SelectedItem == null || cbOpponentTeam.SelectedItem == null)
+            // If the UI drops its selection state momentarily during layout updates,
+            // do NOT update the text file with a blank value.
+            if (cbOpponentTeam.SelectedItem == null)
             {
+                // If we already have an active match running, layout is just recycling the control. Exit!
+                if (_currentActiveMatch != null || !string.IsNullOrEmpty(_selectionService.OpponentTeam))
+                {
+                    return;
+                }
+
                 txtResult.Text = "- : -";
                 pitchCanvas.Children.Clear();
                 return;
@@ -288,33 +272,31 @@ namespace WorldCupWPF
             {
                 try
                 {
-                    // 1. Fetch the match histories involving the favorite team
-                    var matches = await _dataService.GetMatchesByTeamAsync(favTeam.FifaCode);
+                    // Persist valid selections only
+                    _selectionService.Save(_selectionService.Gender, favTeam.FifaCode, opponentTeam.FifaCode, _selectionService.FavoritesByTeam);
 
-                    // 2. Locate the specific match played against this opponent
+                    var matches = await _dataService.GetMatchesByTeamAsync(favTeam.FifaCode);
                     var headToHeadMatch = matches.FirstOrDefault(m =>
                         (m.HomeTeam.Code.Equals(favTeam.FifaCode, StringComparison.OrdinalIgnoreCase) && m.AwayTeam.Code.Equals(opponentTeam.FifaCode, StringComparison.OrdinalIgnoreCase)) ||
                         (m.HomeTeam.Code.Equals(opponentTeam.FifaCode, StringComparison.OrdinalIgnoreCase) && m.AwayTeam.Code.Equals(favTeam.FifaCode, StringComparison.OrdinalIgnoreCase))
                     );
 
-                    // 3. Extract goals and print them directly to the txtResult TextBlock element
                     if (headToHeadMatch != null)
                     {
-                        // We keep track of which team is home vs away to format the display score correctly
                         bool isFavHome = headToHeadMatch.HomeTeam.Code.Equals(favTeam.FifaCode, StringComparison.OrdinalIgnoreCase);
-
                         long favGoals = isFavHome ? headToHeadMatch.HomeTeam.Goals : headToHeadMatch.AwayTeam.Goals;
                         long oppGoals = isFavHome ? headToHeadMatch.AwayTeam.Goals : headToHeadMatch.HomeTeam.Goals;
 
                         txtResult.Text = $"{favGoals} : {oppGoals}";
 
-                        // 4. NEXT STEP PLACEHOLDER: Trigger your player drawing logic on the pitch canvas here
-                        // DrawLineupOnPitch(headToHeadMatch, favTeam.FifaCode);
+                        _currentActiveMatch = headToHeadMatch;
+                        DrawLineupOnPitch(headToHeadMatch, favTeam.FifaCode);
                     }
                     else
                     {
                         txtResult.Text = "- : -";
                         pitchCanvas.Children.Clear();
+                        _currentActiveMatch = null;
                     }
                 }
                 catch (Exception ex)
@@ -329,14 +311,9 @@ namespace WorldCupWPF
         {
             if (cbFavTeam.SelectedItem is Team selectedTeam)
             {
-                // 1. Turn on the background blur/dim filter
                 DimOverlay.Visibility = Visibility.Visible;
-
-                TeamInfoWindow infoWin = new TeamInfoWindow(selectedTeam);
-                infoWin.Owner = this;
+                TeamInfoWindow infoWin = new TeamInfoWindow(selectedTeam) { Owner = this };
                 infoWin.ShowDialog();
-
-                // 2. Turn off the dimming filter once the popup is closed
                 DimOverlay.Visibility = Visibility.Collapsed;
             }
             else
@@ -349,19 +326,75 @@ namespace WorldCupWPF
         {
             if (cbOpponentTeam.SelectedItem is Team selectedTeam)
             {
-                // 1. Turn on the background blur/dim filter
                 DimOverlay.Visibility = Visibility.Visible;
-
-                TeamInfoWindow infoWin = new TeamInfoWindow(selectedTeam);
-                infoWin.Owner = this;
+                TeamInfoWindow infoWin = new TeamInfoWindow(selectedTeam) { Owner = this };
                 infoWin.ShowDialog();
-
-                // 2. Turn off the dimming filter once the popup is closed
                 DimOverlay.Visibility = Visibility.Collapsed;
             }
             else
             {
                 MessageBox.Show("Please select an opponent national team first.", "Selection Required", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private void DrawLineupOnPitch(Match match, string favoriteTeamCode)
+        {
+            pitchCanvas.Children.Clear();
+            if (pitchCanvas.ActualWidth == 0 || pitchCanvas.ActualHeight == 0) return;
+
+            bool isFavHome = match.HomeTeam.Code.Equals(favoriteTeamCode, StringComparison.OrdinalIgnoreCase);
+
+            var leftTeamStats = isFavHome ? match.HomeTeamStatistics : match.AwayTeamStatistics;
+            var leftTeamCode = isFavHome ? match.HomeTeam.Code : match.AwayTeam.Code;
+
+            var rightTeamStats = isFavHome ? match.AwayTeamStatistics : match.HomeTeamStatistics;
+            var rightTeamCode = isFavHome ? match.AwayTeam.Code : match.HomeTeam.Code;
+
+            string activeGender = _selectionService.Gender;
+
+            if (leftTeamStats != null)
+                RenderTeamHalf(leftTeamStats.StartingEleven, activeGender, leftTeamCode, isLeftHalf: true);
+
+            if (rightTeamStats != null)
+                RenderTeamHalf(rightTeamStats.StartingEleven, activeGender, rightTeamCode, isLeftHalf: false);
+        }
+
+        private void RenderTeamHalf(List<Player> players, string gender, string countryCode, bool isLeftHalf)
+        {
+            double pitchWidth = pitchCanvas.ActualWidth;
+            double pitchHeight = pitchCanvas.ActualHeight;
+
+            var positionsGroup = players.GroupBy(p => p.Position).ToDictionary(g => g.Key, g => g.ToList());
+
+            foreach (var pair in positionsGroup)
+            {
+                Position role = pair.Key;
+                var rolePlayers = pair.Value;
+
+                double xPercent = 0;
+                switch (role)
+                {
+                    case Position.Goalie: xPercent = isLeftHalf ? 0.08 : 0.92; break;
+                    case Position.Defender: xPercent = isLeftHalf ? 0.22 : 0.78; break;
+                    case Position.Midfield: xPercent = isLeftHalf ? 0.36 : 0.64; break;
+                    case Position.Forward: xPercent = isLeftHalf ? 0.46 : 0.54; break;
+                }
+
+                double xPos = (pitchWidth * xPercent) - (85 / 2.0);
+
+                for (int i = 0; i < rolePlayers.Count; i++)
+                {
+                    double yPercent = (double)(i + 1) / (rolePlayers.Count + 1);
+                    double yPos = (pitchHeight * yPercent) - (105 / 2.0);
+
+                    PlayerControl playerBadge = new PlayerControl();
+                    playerBadge.PopulatePlayerData(rolePlayers[i], gender, countryCode);
+
+                    Canvas.SetLeft(playerBadge, xPos);
+                    Canvas.SetTop(playerBadge, yPos);
+
+                    pitchCanvas.Children.Add(playerBadge);
+                }
             }
         }
     }

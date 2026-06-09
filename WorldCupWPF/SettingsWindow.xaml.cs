@@ -9,10 +9,7 @@ namespace WorldCupWPF
     {
         private readonly SelectionService _selectionService;
         private readonly SettingsService _settingsService;
-        private readonly string _currentUiTeam; // Stores the active UI selection
 
-        // Added 'currentUiTeam' parameter here
-        // ADD THIS FALLBACK CONSTRUCTOR:
         public SettingsWindow(SelectionService selectionService, SettingsService settingsService)
         {
             InitializeComponent();
@@ -76,6 +73,9 @@ namespace WorldCupWPF
                 // 3. Keep the matching pre-saved gender specific team configuration
                 string teamToPreserve = (newGender == "female") ? _selectionService.FemaleTeam : _selectionService.MaleTeam;
 
+                // NEW: Keep the matching pre-saved opponent team configuration so it doesn't get wiped out!
+                string opponentToPreserve = (newGender == "female") ? _selectionService.FemaleOpponent : _selectionService.MaleOpponent;
+
                 // 4. Handle resolution tag metrics
                 var selectedResItem = (ComboBoxItem)cbResolution.SelectedItem;
                 string resTag = selectedResItem.Tag.ToString();
@@ -91,8 +91,8 @@ namespace WorldCupWPF
                     int.TryParse(parts[1], out height);
                 }
 
-                // 5. Commit states to file layers cleanly
-                _selectionService.Save(newGender, teamToPreserve, _selectionService.FavoritesByTeam);
+                // 5. FIX: Pass all 4 parameters into the updated SelectionService signature
+                _selectionService.Save(newGender, teamToPreserve, opponentToPreserve, _selectionService.FavoritesByTeam);
                 _settingsService.Save(newTitle, isFullScreen, width, height);
 
                 this.DialogResult = true;

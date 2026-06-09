@@ -1,83 +1,4 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
-
-//namespace DataLayer.Services
-//{
-//    public class SelectionService
-//    {
-//        private readonly string _path = Path.Combine(
-//            AppDomain.CurrentDomain.BaseDirectory,
-//            "Resources", "Appsettings", "selections.txt");
-
-//        public bool Exists => File.Exists(_path);
-//        public string Gender { get; private set; } = string.Empty;
-//        public string Team { get; private set; } = string.Empty;
-//        public List<string> Players { get; private set; } = new();
-
-//        public Dictionary<string, List<string>> FavoritesByTeam { get; private set; } = new();
-
-//        public List<string> GetFavorites(string fifaCode)
-//            => FavoritesByTeam.GetValueOrDefault(fifaCode, new List<string>());
-//        public SelectionService()
-//        {
-//            if (!Exists) return;
-//            Load();
-//        }
-//        private void Load()
-//        {
-//            var lines = File.ReadAllLines(_path).ToDictionary(
-//                x => x.Split("=")[0].Trim(),
-//                x => x.Split("=")[1].Trim()
-//            );
-
-//            Gender = lines.GetValueOrDefault("GENDER", string.Empty);
-//            Team = lines.GetValueOrDefault("TEAM", string.Empty);
-
-//            FavoritesByTeam = new();
-//            foreach (var kvp in lines.Where(l => l.Key.StartsWith("PLAYERS_")))
-//            {
-//                var code = kvp.Key.Replace("PLAYERS_", "");
-//                var players = kvp.Value.Split(",", StringSplitOptions.RemoveEmptyEntries).ToList();
-//                FavoritesByTeam[code] = players;
-//            }
-//        }
-
-//        public void SaveFavorites(string fifaCode, List<string> players)
-//        {
-//            FavoritesByTeam[fifaCode] = players.Take(3).ToList();
-//            SaveAll();
-//        }
-
-//        public void Save(string gender, string team, Dictionary<string, List<string>> favoritesByTeam)
-//        {
-//            Gender = gender;
-//            Team = team;
-//            FavoritesByTeam = favoritesByTeam;
-//            SaveAll();
-//        }
-
-//        private void SaveAll()
-//        {
-//            Directory.CreateDirectory(Path.GetDirectoryName(_path)!);
-
-//            var lines = new List<string>
-//                {
-//                    $"GENDER={Gender}",
-//                    $"TEAM={Team}"
-//                };
-
-//            foreach (var kvp in FavoritesByTeam)
-//                lines.Add($"PLAYERS_{kvp.Key}={string.Join(",", kvp.Value)}");
-
-//            File.WriteAllLines(_path, lines);
-//        }
-//    }
-//}
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -96,10 +17,12 @@ namespace DataLayer.Services
         public string MaleTeam { get; private set; } = string.Empty;
         public string FemaleTeam { get; private set; } = string.Empty;
 
-        // Dynamic property returning the team matching the active gender
-        public string Team => Gender == "female" ? FemaleTeam : MaleTeam;
+        public string MaleOpponent { get; private set; } = string.Empty;
+        public string FemaleOpponent { get; private set; } = string.Empty;
 
-        // Keys inside here will now store composite values like "male_ENG" or "female_ENG"
+        public string Team => Gender == "female" ? FemaleTeam : MaleTeam;
+        public string OpponentTeam => Gender == "female" ? FemaleOpponent : MaleOpponent;
+
         public Dictionary<string, List<string>> FavoritesByTeam { get; private set; } = new();
 
         public List<string> GetFavorites(string fifaCode)
@@ -113,6 +36,8 @@ namespace DataLayer.Services
 
         public void Load()
         {
+            if (!Exists) return;
+
             var lines = File.ReadAllLines(_path)
                 .Select(x => x.Split('='))
                 .Where(x => x.Length == 2)
@@ -121,11 +46,13 @@ namespace DataLayer.Services
             Gender = lines.GetValueOrDefault("GENDER", string.Empty);
             MaleTeam = lines.GetValueOrDefault("MALE_TEAM", string.Empty);
             FemaleTeam = lines.GetValueOrDefault("FEMALE_TEAM", string.Empty);
+            MaleOpponent = lines.GetValueOrDefault("MALE_OPPONENT", string.Empty);
+            FemaleOpponent = lines.GetValueOrDefault("FEMALE_OPPONENT", string.Empty);
 
             FavoritesByTeam = new();
             foreach (var kvp in lines.Where(l => l.Key.StartsWith("PLAYERS_")))
             {
-                var uniqueKey = kvp.Key.Replace("PLAYERS_", ""); // e.g., "male_ENG"
+                var uniqueKey = kvp.Key.Replace("PLAYERS_", "");
                 var players = kvp.Value.Split(",", StringSplitOptions.RemoveEmptyEntries).ToList();
                 FavoritesByTeam[uniqueKey] = players;
             }
@@ -137,13 +64,20 @@ namespace DataLayer.Services
             SaveAll();
         }
 
-        public void Save(string gender, string team, Dictionary<string, List<string>> favoritesByTeam)
+        public void Save(string gender, string team, string opponentTeam, Dictionary<string, List<string>> favoritesByTeam)
         {
             Gender = gender;
+
             if (gender == "female")
+            {
                 FemaleTeam = team;
+                FemaleOpponent = opponentTeam;
+            }
             else
+            {
                 MaleTeam = team;
+                MaleOpponent = opponentTeam;
+            }
 
             FavoritesByTeam = favoritesByTeam;
             SaveAll();
@@ -157,7 +91,9 @@ namespace DataLayer.Services
             {
                 $"GENDER={Gender}",
                 $"MALE_TEAM={MaleTeam}",
-                $"FEMALE_TEAM={FemaleTeam}"
+                $"MALE_OPPONENT={MaleOpponent}",
+                $"FEMALE_TEAM={FemaleTeam}",
+                $"FEMALE_OPPONENT={FemaleOpponent}"
             };
 
             foreach (var kvp in FavoritesByTeam)

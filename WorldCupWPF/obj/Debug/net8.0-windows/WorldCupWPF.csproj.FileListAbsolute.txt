@@ -38,3 +38,7 @@ C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupWPF\obj\D
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupWPF\bin\Debug\net8.0-windows\Resources\img\pitch.jpg
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupWPF\obj\Debug\net8.0-windows\TeamInfoWindow.baml
 C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupWPF\obj\Debug\net8.0-windows\TeamInfoWindow.g.cs
+C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupWPF\obj\Debug\net8.0-windows\PlayerControl.g.cs
+C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupWPF\obj\Debug\net8.0-windows\PlayerControl.baml
+C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupWPF\obj\Debug\net8.0-windows\PlayerInfoWindow.g.cs
+C:\DATA\uni\current\OOP .NET\Project\Project solution\WorldCup\WorldCupWPF\obj\Debug\net8.0-windows\PlayerInfoWindow.baml

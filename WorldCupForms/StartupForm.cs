@@ -26,7 +26,8 @@ namespace WorldCupForms
         {
             string gender = rbFemale.Checked ? "female" : "male";
 
-            _selectionService.Save(gender, String.Empty, new Dictionary<string, List<string>>());
+            // FIX: Added string.Empty for the opponent slot to match the 4-parameter method signature
+            _selectionService.Save(gender, string.Empty, string.Empty, new Dictionary<string, List<string>>());
 
             this.DialogResult = DialogResult.OK;
             this.Close();

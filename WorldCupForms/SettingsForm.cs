@@ -55,7 +55,6 @@ namespace WorldCupForms
 
         private void btnConfirm_Click(object sender, EventArgs e)
         {
-            // Request confirmation from the user to set the priority
             var dialogResult = MessageBox.Show(
                 "Are you sure you want to save these settings?",
                 "Confirm Settings Change",
@@ -66,10 +65,11 @@ namespace WorldCupForms
             {
                 string selectedGender = rbFemale.Checked ? "female" : "male";
 
-                // Save the configuration back to the file system using your SelectionService structure
+                // FIX: Added string.Empty as the 3rd argument for the opponent slot
                 _selectionService.Save(
                     selectedGender,
                     _selectionService.Team,
+                    string.Empty,
                     _selectionService.FavoritesByTeam
                 );
 
