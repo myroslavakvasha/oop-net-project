@@ -20,7 +20,6 @@ namespace WorldCupWPF
         {
             if (team == null) return;
 
-            // 1. Core Team Details
             txtCountryName.Text = team.Country;
             txtFifaCode.Text = $"FIFA Code: {team.FifaCode}";
 
@@ -33,8 +32,6 @@ namespace WorldCupWPF
             txtGoalsConceded.Text = team.GoalsAgainst.ToString();
             txtGoalDiff.Text = team.GoalDifferential.ToString();
 
-            // 2. Load Dynamic Team Image / Flag Safely
-            // Note: Make sure your TeamInfoWindow.xaml has an Image control named "imgTeam"
             var imgTeamControl = this.FindName("imgTeam") as System.Windows.Controls.Image;
             if (imgTeamControl != null)
             {
@@ -42,14 +39,10 @@ namespace WorldCupWPF
                 {
                     string baseDir = AppDomain.CurrentDomain.BaseDirectory;
 
-                    // Navigate past build outputs to the solution root
                     string solutionRoot = System.IO.Path.GetFullPath(System.IO.Path.Combine(baseDir, @"..\..\..\..\"));
 
-                    // Target your shared players/images asset route
                     string imagesFolder = System.IO.Path.Combine(solutionRoot, "DataLayer", "Resources", "img", "players");
 
-                    // Pattern: Looks for a file named after the FIFA code (e.g., "CRO.png")
-                    // If your flags are in a different folder, just alter the path above!
                     string targetFileName = $"{team.FifaCode.ToUpper()}.png";
                     string imagePath = System.IO.Path.Combine(imagesFolder, targetFileName);
 
@@ -59,7 +52,6 @@ namespace WorldCupWPF
                     }
                     else
                     {
-                        // Fallback to default asset if explicit image doesn't exist
                         string defaultPath = System.IO.Path.Combine(imagesFolder, "default.png");
                         if (System.IO.File.Exists(defaultPath))
                         {

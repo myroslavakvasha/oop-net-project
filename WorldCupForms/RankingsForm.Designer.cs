@@ -110,9 +110,9 @@
             // btnPrint
             // 
             btnPrint.Font = new Font("Inter", 9F);
-            btnPrint.Location = new Point(13, 1437);
+            btnPrint.Location = new Point(58, 1404);
             btnPrint.Name = "btnPrint";
-            btnPrint.Size = new Size(333, 46);
+            btnPrint.Size = new Size(499, 97);
             btnPrint.TabIndex = 1;
             btnPrint.Text = "Print rankings (pdf)";
             btnPrint.UseVisualStyleBackColor = true;

@@ -17,7 +17,7 @@ namespace WorldCupForms
         private readonly ConfigService _configService;
         private readonly DataService _dataService;
         private readonly SelectionService _selectionService;
-        private readonly SettingsService _settingsService; // 1. Shared configuration layer reference
+        private readonly SettingsService _settingsService;
         private bool _isReloading = false;
 
         public MainForm()
@@ -33,10 +33,9 @@ namespace WorldCupForms
             flpFavorites.DragDrop += FavoritesPanel_DragDrop;
             flpAllPlayers.DragDrop += AllPlayersPanel_DragDrop;
 
-            // Initialize services
             _configService = new ConfigService();
             _selectionService = new SelectionService();
-            _settingsService = new SettingsService(); // 2. Instantiated configuration layout engine
+            _settingsService = new SettingsService();
             _dataService = new DataService(_configService, _selectionService);
         }
 
@@ -46,7 +45,6 @@ namespace WorldCupForms
 
             try
             {
-                // 3. Force read the physical text configuration parameters and update form boundary title
                 _settingsService.Load();
                 this.Text = _settingsService.Title;
 
@@ -57,7 +55,6 @@ namespace WorldCupForms
 
                 cbTeams.DataSource = orderedTeams;
 
-                // pre-select saved team if exists
                 if (!string.IsNullOrEmpty(_selectionService.Team))
                 {
                     var saved = orderedTeams.FirstOrDefault(t => t.FifaCode == _selectionService.Team);
@@ -94,7 +91,6 @@ namespace WorldCupForms
 
             if (cbTeams.SelectedItem is Team selected)
             {
-                // FIX: Added string.Empty as the 3rd argument for the opponent slot
                 _selectionService.Save(_selectionService.Gender, selected.FifaCode, string.Empty, _selectionService.FavoritesByTeam);
                 await LoadTeamDataAsync(selected);
             }
@@ -116,13 +112,11 @@ namespace WorldCupForms
                     return;
                 }
 
-                // get first match and find the correct statistics for our team
                 var firstMatch = matches.First();
                 var stats = firstMatch.HomeTeam.Code == team.FifaCode
                     ? firstMatch.HomeTeamStatistics
                     : firstMatch.AwayTeamStatistics;
 
-                // union of starting eleven and substitutes
                 var allPlayers = stats.StartingEleven
                     .Union(stats.Substitutes)
                     .ToList();
@@ -133,7 +127,6 @@ namespace WorldCupForms
                 {
                     bool isFav = favoritesForTeam.Contains(player.Name);
 
-                    // Pass the active gender from selection service here:
                     var card = new PlayerCardControl(player, isFav, team.FifaCode, _selectionService.Gender);
                     card.FavoriteToggled += OnFavoriteToggled;
 
@@ -212,7 +205,6 @@ namespace WorldCupForms
             if (card == null) return;
             if (flpFavorites.Controls.Contains(card)) return;
 
-            // get all selected cards from all players panel
             var selectedCards = flpAllPlayers.Controls
                 .OfType<PlayerCardControl>()
                 .Where(c => c.IsSelected || c == card)
@@ -245,7 +237,6 @@ namespace WorldCupForms
             if (card == null) return;
             if (flpAllPlayers.Controls.Contains(card)) return;
 
-            // get all selected cards from favorites panel
             var selectedCards = flpFavorites.Controls
                 .OfType<PlayerCardControl>()
                 .Where(c => c.IsSelected || c == card)
@@ -272,21 +263,16 @@ namespace WorldCupForms
             {
                 if (settingsForm.ShowDialog() == DialogResult.OK)
                 {
-                    // Activate our safety guard flag
                     _isReloading = true;
 
-                    // 4. Force settings configuration layers to reload properties from file system limits
                     _settingsService.Load();
                     _selectionService.Load();
 
-                    // 5. Update form title layer explicitly with updated properties text string 
                     this.Text = _settingsService.Title;
 
-                    // Completely clean out the UI layout components to avoid remnants
                     flpFavorites.Controls.Clear();
                     flpAllPlayers.Controls.Clear();
 
-                    // Unhook event explicitly
                     cbTeams.SelectedIndexChanged -= cbTeams_SelectedIndexChanged;
                     cbTeams.DataSource = null;
 
@@ -298,7 +284,6 @@ namespace WorldCupForms
 
                         cbTeams.DataSource = orderedTeams;
 
-                        // Pre-select the saved team for the active gender we just switched to
                         string savedTeamCode = _selectionService.Team;
 
                         if (!string.IsNullOrEmpty(savedTeamCode))
@@ -311,14 +296,11 @@ namespace WorldCupForms
                         }
                         else
                         {
-                            // If no team was saved for this gender yet, default to the first one safely
                             cbTeams.SelectedIndex = 0;
                         }
 
-                        // Re-hook the event handler safely now that selections are aligned
                         cbTeams.SelectedIndexChanged += cbTeams_SelectedIndexChanged;
 
-                        // Turn off the safety guard flag right before fetching the team profiles
                         _isReloading = false;
 
                         if (cbTeams.SelectedItem is Team selected)
@@ -329,7 +311,7 @@ namespace WorldCupForms
                     catch (Exception ex)
                     {
                         MessageBox.Show($"Error reloading championships: {ex.Message}");
-                        _isReloading = false; // Safety fallback
+                        _isReloading = false;
                     }
                     finally
                     {
@@ -375,20 +357,18 @@ namespace WorldCupForms
 
         private void Form_FormClosing(object sender, FormClosingEventArgs e)
         {
-            // If the close reason is already controlled or shutting down from Task Manager, let it pass
             if (e.CloseReason == CloseReason.TaskManagerClosing || e.CloseReason == CloseReason.WindowsShutDown)
             {
                 return;
             }
 
-            // Display confirmation dialog box targeted directly at the active Form layer
             DialogResult result = MessageBox.Show(
                 this,
                 "Are you sure you want to close the application?",
                 "Exit Application Confirmation",
                 MessageBoxButtons.YesNoCancel,
                 MessageBoxIcon.Question,
-                MessageBoxDefaultButton.Button1 // Defaults the focus context to "Yes" (Enter Key maps here natively)
+                MessageBoxDefaultButton.Button1
             );
 
             if (result == DialogResult.No || result == DialogResult.Cancel)

@@ -17,7 +17,7 @@ namespace WorldCupForms
         private readonly List<PlayerRankingModel> _players;
         private readonly List<MatchRankingModel> _matches;
 
-        // Thread-safe async pagination trackers
+        // pagination trackers
         private int _currentPlayerIndex = 0;
         private int _currentMatchIndex = 0;
         private int _currentPageNumber = 1;
@@ -30,7 +30,7 @@ namespace WorldCupForms
 
             this.Load += RankingsForm_Load;
 
-            // Strict background event bindings to prevent duplicate UI trigger loops
+            // prevents double-subscription
             printDocument.BeginPrint -= PrintDocument_BeginPrint;
             printDocument.BeginPrint += PrintDocument_BeginPrint;
 
@@ -49,15 +49,11 @@ namespace WorldCupForms
             SetupPlayersGridView();
             SetupMatchesGridView();
         }
-
-        // --- FIXED PRINT BUTTON HANDLER ---
         private void btnPrint_Click(object sender, EventArgs e)
         {
             printDialog.Document = printDocument;
             printDialog.UseEXDialog = true;
 
-            // FIX: Passing "this" forces the file dialog to layer strictly above this Form, 
-            // preventing the app from minimizing or losing focus when the PDF finishes generating.
             if (printDialog.ShowDialog(this) == DialogResult.OK)
             {
                 try
@@ -73,7 +69,6 @@ namespace WorldCupForms
 
         private void PrintDocument_BeginPrint(object sender, PrintEventArgs e)
         {
-            // Reset dataset pointers cleanly before starting pagination
             _currentPlayerIndex = 0;
             _currentMatchIndex = 0;
             _currentPageNumber = 1;
@@ -84,7 +79,6 @@ namespace WorldCupForms
             Graphics g = e.Graphics;
             if (g == null) return;
 
-            // Strict typography mapping using the Inter Font Family
             string fontName = "Inter";
             Font titleFont = new Font(fontName, 16, FontStyle.Bold);
             Font sectionFont = new Font(fontName, 13, FontStyle.Bold);
@@ -96,17 +90,14 @@ namespace WorldCupForms
             float usableWidth = e.MarginBounds.Width;
             float rightX = e.MarginBounds.Right;
 
-            // --- RECALCULATED HORIZONTAL GRID TRACKS ---
             float colPicX = leftX + 15;
             float colNameX = leftX + 90;
 
-            // Exact center anchors and bounding widths for numeric fields
             float colAppsCenter = rightX - 220;
             float colGoalsCenter = rightX - 130;
             float colCardsCenter = rightX - 50;
             float numColumnWidth = 60;
 
-            // Formatting rules to handle different alignments
             StringFormat fullyCenteredFormat = new StringFormat
             {
                 Alignment = StringAlignment.Center,
@@ -115,43 +106,38 @@ namespace WorldCupForms
 
             StringFormat verticalOnlyCenterFormat = new StringFormat
             {
-                Alignment = StringAlignment.Near, // Keeps text starting on the left side
-                LineAlignment = StringAlignment.Center // Centers text vertically in the row bounding rectangle
+                Alignment = StringAlignment.Near,
+                LineAlignment = StringAlignment.Center
             };
 
-            // 1. MAIN TITLE BANNER (Generated On Timestamp Line Deleted)
             if (_currentPageNumber == 1)
             {
                 g.DrawString("National Team Rankings & Statistical Report", titleFont, Brushes.Black, leftX, currentY);
                 currentY += titleFont.Height + 25;
             }
 
-            // 2. PLAYER RANKINGS SECTION
             if (_currentPlayerIndex < _players.Count)
             {
-                if (_currentPageNumber == 1 || currentY + 80 > e.MarginBounds.Bottom)
+                if (_currentPlayerIndex == 0)
                 {
                     g.DrawString("Player Rankings (Sorted by Goals & Yellow Cards)", sectionFont, Brushes.DarkGreen, leftX, currentY);
                     currentY += sectionFont.Height + 10;
                 }
 
-                // Draw Player Grid Header Blocks (Height 28)
                 g.FillRectangle(Brushes.LightGray, leftX, currentY, usableWidth, 28);
                 g.DrawRectangle(Pens.Black, leftX, currentY, usableWidth, 28);
 
                 g.DrawString("Picture", headerFont, Brushes.Black, colPicX, currentY + 6);
                 g.DrawString("Full Name", headerFont, Brushes.Black, colNameX, currentY + 6);
 
-                // Render headers perfectly centered to match the numbers beneath them
                 g.DrawString("Apps", headerFont, Brushes.Black, new RectangleF(colAppsCenter - (numColumnWidth / 2), currentY, numColumnWidth, 28), fullyCenteredFormat);
                 g.DrawString("Goals", headerFont, Brushes.Black, new RectangleF(colGoalsCenter - (numColumnWidth / 2), currentY, numColumnWidth, 28), fullyCenteredFormat);
                 g.DrawString("Cards", headerFont, Brushes.Black, new RectangleF(colCardsCenter - (numColumnWidth / 2), currentY, numColumnWidth, 28), fullyCenteredFormat);
                 currentY += 28;
 
-                // Player Processing Loop
                 while (_currentPlayerIndex < _players.Count)
                 {
-                    float rowHeight = 56; // High clearance budget guarantees square custom portraits never clip margins
+                    float rowHeight = 56;
                     if (currentY + rowHeight > e.MarginBounds.Bottom)
                     {
                         DrawPageFooter(g, rightX, e.MarginBounds.Bottom);
@@ -162,35 +148,22 @@ namespace WorldCupForms
 
                     var player = _players[_currentPlayerIndex];
 
-                    // Outer cell container border outlines
                     g.DrawRectangle(Pens.LightGray, leftX, currentY, usableWidth, rowHeight);
 
-                    // Bounding target slot: Safe 44x44 portrait canvas zone
                     float targetBoxW = 44;
                     float targetBoxH = 44;
                     float targetBoxX = colPicX;
-                    float targetBoxY = currentY + (rowHeight - targetBoxH) / 2; // Perfectly center vertically
+                    float targetBoxY = currentY + (rowHeight - targetBoxH) / 2;
 
                     if (File.Exists(player.ImagePath))
                     {
                         try
                         {
-                            using (var fs = new FileStream(player.ImagePath, FileMode.Open, FileAccess.Read))
-                            using (Image img = Image.FromStream(fs))
+                            using (Bitmap bmp = new Bitmap(player.ImagePath))
                             {
-                                // Proportional fit calculations (Prevents squishing or stretching completely)
-                                float ratioX = targetBoxW / img.Width;
-                                float ratioY = targetBoxH / img.Height;
-                                float scaleRatio = Math.Min(ratioX, ratioY);
+                                bmp.SetResolution(96, 96);
 
-                                float finalW = img.Width * scaleRatio;
-                                float finalH = img.Height * scaleRatio;
-
-                                // Center placement vectors inside the 44x44 box
-                                float renderX = targetBoxX + (targetBoxW - finalW) / 2;
-                                float renderY = targetBoxY + (targetBoxH - finalH) / 2;
-
-                                g.DrawImage(img, renderX, renderY, finalW, finalH);
+                                g.DrawImage(bmp, targetBoxX, targetBoxY, targetBoxW, targetBoxH);
                             }
                         }
                         catch
@@ -203,12 +176,9 @@ namespace WorldCupForms
                         g.DrawRectangle(Pens.Gainsboro, targetBoxX, targetBoxY, targetBoxW, targetBoxH);
                     }
 
-                    // --- FIX A: LEFT-ALIGNED BUT VERTICALLY CENTERED FOR STRINGS ---
-                    // Construct a tracking rectangle mapping the full height of the row starting from colNameX
                     RectangleF nameRect = new RectangleF(colNameX, currentY, colAppsCenter - (numColumnWidth / 2) - colNameX, rowHeight);
                     g.DrawString(player.Name, bodyFont, Brushes.Black, nameRect, verticalOnlyCenterFormat);
 
-                    // --- FIX B: FULLY CENTERED BOTH WAYS FOR NUMBERS ---
                     RectangleF rectApps = new RectangleF(colAppsCenter - (numColumnWidth / 2), currentY, numColumnWidth, rowHeight);
                     RectangleF rectGoals = new RectangleF(colGoalsCenter - (numColumnWidth / 2), currentY, numColumnWidth, rowHeight);
                     RectangleF rectCards = new RectangleF(colCardsCenter - (numColumnWidth / 2), currentY, numColumnWidth, rowHeight);
@@ -223,7 +193,6 @@ namespace WorldCupForms
                 currentY += 25;
             }
 
-            // 3. MATCH RANKINGS SECTION
             if (_currentPlayerIndex >= _players.Count && _currentMatchIndex < _matches.Count)
             {
                 if (currentY + 65 > e.MarginBounds.Bottom)
@@ -245,7 +214,6 @@ namespace WorldCupForms
                 g.DrawString("Away Team (Guest)", headerFont, Brushes.Black, leftX + matchColWidth + 5, currentY + 6);
                 g.DrawString("Location / Venue", headerFont, Brushes.Black, leftX + (matchColWidth * 2) + 5, currentY + 6);
 
-                // Fully center the visitor column header
                 g.DrawString("Total Visitors", headerFont, Brushes.Black, new RectangleF(leftX + (matchColWidth * 3), currentY, matchColWidth, 28), fullyCenteredFormat);
                 currentY += 28;
 
@@ -262,10 +230,8 @@ namespace WorldCupForms
 
                     var match = _matches[_currentMatchIndex];
 
-                    // Draw match row cell boundaries
                     g.DrawRectangle(Pens.LightGray, leftX, currentY, usableWidth, matchRowHeight);
 
-                    // Construct left-aligned, vertically centered rectangles for match details text strings
                     RectangleF rectHome = new RectangleF(leftX + 5, currentY, matchColWidth - 5, matchRowHeight);
                     RectangleF rectAway = new RectangleF(leftX + matchColWidth + 5, currentY, matchColWidth - 5, matchRowHeight);
                     RectangleF rectLoc = new RectangleF(leftX + (matchColWidth * 2) + 5, currentY, matchColWidth - 5, matchRowHeight);
@@ -274,7 +240,6 @@ namespace WorldCupForms
                     g.DrawString(match.GuestTeam, bodyFont, Brushes.Black, rectAway, verticalOnlyCenterFormat);
                     g.DrawString(match.Location, bodyFont, Brushes.Black, rectLoc, verticalOnlyCenterFormat);
 
-                    // Fully center the numeric values (Both horizontally and vertically)
                     RectangleF rectAttendance = new RectangleF(leftX + (matchColWidth * 3), currentY, matchColWidth, matchRowHeight);
                     g.DrawString(match.Attendance.ToString("N0"), bodyFont, Brushes.Black, rectAttendance, fullyCenteredFormat);
 
@@ -286,23 +251,18 @@ namespace WorldCupForms
             DrawPageFooter(g, rightX, e.MarginBounds.Bottom);
             e.HasMorePages = (_currentPlayerIndex < _players.Count || _currentMatchIndex < _matches.Count);
         }
-
-        // Don't forget your footer tracker using Inter!
         private void DrawPageFooter(Graphics g, float rightX, float bottomY)
         {
             Font footerFont = new Font("Inter", 9, FontStyle.Regular);
             g.DrawString($"Page {_currentPageNumber}", footerFont, Brushes.Gray, rightX - 50, bottomY + 10);
         }
-
-        // --- FIXED SUCCESS MESSAGEBOX WINDOW FOCUS ---
         private void PrintDocument_EndPrint(object sender, PrintEventArgs e)
         {
             if (e.PrintAction == PrintAction.PrintToPrinter)
             {
-                // Passing "this" anchors this message window natively on top of your app form workspace layer.
                 MessageBox.Show(
                     this,
-                    "PDF saved successfully",
+                    "Print job sent successfully", // not every thingy is pdf irl
                     "Print Successful",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
@@ -378,8 +338,9 @@ namespace WorldCupForms
                     try
                     {
                         using (var stream = new FileStream(_players[i].ImagePath, FileMode.Open, FileAccess.Read))
+                        using (var temp = Image.FromStream(stream))
                         {
-                            dgvPlayers.Rows[i].Cells["Picture"].Value = Image.FromStream(stream);
+                            dgvPlayers.Rows[i].Cells["Picture"].Value = new Bitmap(temp);
                         }
                     }
                     catch (Exception ex)
@@ -444,7 +405,6 @@ namespace WorldCupForms
 
         private void RankingsForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            // Ask for exit confirmation
             DialogResult result = MessageBox.Show(
                 this,
                 "Are you sure you want to close the rankings viewer?",
@@ -454,17 +414,7 @@ namespace WorldCupForms
                 MessageBoxDefaultButton.Button1
             );
 
-            if (result == DialogResult.No || result == DialogResult.Cancel)
-            {
-                e.Cancel = true;
-            }
-            else
-            {
-                // Clean up tracking indexes completely when leaving the screen scope
-                _currentPlayerIndex = 0;
-                _currentMatchIndex = 0;
-                _currentPageNumber = 1;
-            }
+            if (result == DialogResult.No || result == DialogResult.Cancel) e.Cancel = true;
         }
     }
 }

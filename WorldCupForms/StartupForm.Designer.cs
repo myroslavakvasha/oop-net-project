@@ -64,7 +64,7 @@
             // 
             lbLang.AutoSize = true;
             lbLang.Font = new Font("Inter", 9F);
-            lbLang.Location = new Point(183, 360);
+            lbLang.Location = new Point(183, 435);
             lbLang.Name = "lbLang";
             lbLang.Size = new Size(261, 35);
             lbLang.TabIndex = 2;
@@ -78,28 +78,28 @@
             rbFemale.Font = new Font("Inter", 9F);
             rbFemale.Location = new Point(517, 288);
             rbFemale.Name = "rbFemale";
-            rbFemale.Size = new Size(127, 39);
+            rbFemale.Size = new Size(335, 39);
             rbFemale.TabIndex = 3;
             rbFemale.TabStop = true;
-            rbFemale.Text = "Female";
+            rbFemale.Text = "Female (World Cup 2019)";
             rbFemale.UseVisualStyleBackColor = true;
             // 
             // rbMale
             // 
             rbMale.AutoSize = true;
             rbMale.Font = new Font("Inter", 9F);
-            rbMale.Location = new Point(696, 288);
+            rbMale.Location = new Point(517, 343);
             rbMale.Name = "rbMale";
-            rbMale.Size = new Size(101, 39);
+            rbMale.Size = new Size(309, 39);
             rbMale.TabIndex = 4;
-            rbMale.Text = "Male";
+            rbMale.Text = "Male (World Cup 2018)";
             rbMale.UseVisualStyleBackColor = true;
             // 
             // lbEnglish
             // 
             lbEnglish.AutoSize = true;
             lbEnglish.Font = new Font("Inter", 9F);
-            lbEnglish.Location = new Point(517, 360);
+            lbEnglish.Location = new Point(517, 435);
             lbEnglish.Name = "lbEnglish";
             lbEnglish.Size = new Size(97, 35);
             lbEnglish.TabIndex = 5;
@@ -108,12 +108,12 @@
             // 
             // btnConfirm
             // 
-            btnConfirm.BackColor = SystemColors.ActiveBorder;
+            btnConfirm.BackColor = Color.White;
             btnConfirm.Font = new Font("Inter", 9F, FontStyle.Bold);
             btnConfirm.ForeColor = SystemColors.ActiveCaptionText;
-            btnConfirm.Location = new Point(533, 506);
+            btnConfirm.Location = new Point(426, 535);
             btnConfirm.Name = "btnConfirm";
-            btnConfirm.Size = new Size(264, 60);
+            btnConfirm.Size = new Size(485, 60);
             btnConfirm.TabIndex = 6;
             btnConfirm.Text = "Confirm";
             btnConfirm.UseVisualStyleBackColor = false;

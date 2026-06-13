@@ -18,7 +18,6 @@ namespace WorldCupWPF
 
             txtTitle.Text = _settingsService.Title;
 
-            // Select correct championship gender item
             foreach (ComboBoxItem item in cbGender.Items)
             {
                 if (item.Tag.ToString().Equals(_selectionService.Gender, StringComparison.OrdinalIgnoreCase))
@@ -28,7 +27,6 @@ namespace WorldCupWPF
                 }
             }
 
-            // Select resolution item matching current size dimensions
             if (_settingsService.IsFullScreen)
             {
                 cbResolution.SelectedIndex = 0;
@@ -48,7 +46,7 @@ namespace WorldCupWPF
                     }
                 }
 
-                if (!foundMatch) cbResolution.SelectedIndex = 2; // Default 1024x720 fallback
+                if (!foundMatch) cbResolution.SelectedIndex = 2;
             }
         }
 
@@ -62,21 +60,16 @@ namespace WorldCupWPF
 
             if (result == MessageBoxResult.Yes)
             {
-                // 1. Title handling
                 string newTitle = txtTitle.Text.Trim();
                 if (string.IsNullOrEmpty(newTitle)) newTitle = "World Cup Statistics";
 
-                // 2. Parse Gender selection
                 var selectedGenderItem = (ComboBoxItem)cbGender.SelectedItem;
                 string newGender = selectedGenderItem.Tag.ToString().ToLower();
 
-                // 3. Keep the matching pre-saved gender specific team configuration
                 string teamToPreserve = (newGender == "female") ? _selectionService.FemaleTeam : _selectionService.MaleTeam;
 
-                // NEW: Keep the matching pre-saved opponent team configuration so it doesn't get wiped out!
                 string opponentToPreserve = (newGender == "female") ? _selectionService.FemaleOpponent : _selectionService.MaleOpponent;
 
-                // 4. Handle resolution tag metrics
                 var selectedResItem = (ComboBoxItem)cbResolution.SelectedItem;
                 string resTag = selectedResItem.Tag.ToString();
 
@@ -91,7 +84,6 @@ namespace WorldCupWPF
                     int.TryParse(parts[1], out height);
                 }
 
-                // 5. FIX: Pass all 4 parameters into the updated SelectionService signature
                 _selectionService.Save(newGender, teamToPreserve, opponentToPreserve, _selectionService.FavoritesByTeam);
                 _settingsService.Save(newTitle, isFullScreen, width, height);
 

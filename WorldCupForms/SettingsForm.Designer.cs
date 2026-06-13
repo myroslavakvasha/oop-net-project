@@ -52,27 +52,27 @@
             rbFemale.Font = new Font("Inter", 9F);
             rbFemale.Location = new Point(138, 253);
             rbFemale.Name = "rbFemale";
-            rbFemale.Size = new Size(127, 39);
+            rbFemale.Size = new Size(335, 39);
             rbFemale.TabIndex = 1;
             rbFemale.TabStop = true;
-            rbFemale.Text = "Female";
+            rbFemale.Text = "Female (World Cup 2019)";
             rbFemale.UseVisualStyleBackColor = true;
             // 
             // rbMale
             // 
             rbMale.AutoSize = true;
             rbMale.Font = new Font("Inter", 9F);
-            rbMale.Location = new Point(138, 325);
+            rbMale.Location = new Point(138, 310);
             rbMale.Name = "rbMale";
-            rbMale.Size = new Size(101, 39);
+            rbMale.Size = new Size(309, 39);
             rbMale.TabIndex = 2;
             rbMale.TabStop = true;
-            rbMale.Text = "Male";
+            rbMale.Text = "Male (World Cup 2018)";
             rbMale.UseVisualStyleBackColor = true;
             // 
             // btnConfirm
             // 
-            btnConfirm.BackColor = Color.OliveDrab;
+            btnConfirm.BackColor = Color.DarkOliveGreen;
             btnConfirm.Font = new Font("Inter", 9F, FontStyle.Bold);
             btnConfirm.ForeColor = SystemColors.ButtonHighlight;
             btnConfirm.Location = new Point(138, 465);
@@ -85,7 +85,7 @@
             // 
             // btnCancel
             // 
-            btnCancel.BackColor = Color.Brown;
+            btnCancel.BackColor = Color.DarkRed;
             btnCancel.DialogResult = DialogResult.Cancel;
             btnCancel.Font = new Font("Inter", 9F, FontStyle.Bold);
             btnCancel.ForeColor = SystemColors.ButtonHighlight;

@@ -35,9 +35,9 @@ namespace WorldCupWPF
             pitchCanvas.SizeChanged += (s, e) => {
                 if (_currentActiveMatch != null && cbFavTeam.SelectedItem is Team favTeam)
                 {
-                    _isResizingLayout = true; // Block UI dropdown events from doing damage
+                    _isResizingLayout = true;
                     DrawLineupOnPitch(_currentActiveMatch, favTeam.FifaCode);
-                    _isResizingLayout = false; // Release the block
+                    _isResizingLayout = false;
                 }
             };
         }
@@ -193,11 +193,8 @@ namespace WorldCupWPF
 
         private async void CbFavTeam_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // If we are loading initially or the selection is genuinely null, stop.
             if (_isInitialLoading || cbFavTeam.SelectedItem == null) return;
 
-            // Safety check: WPF fires this during resize with 0 removed items quite often when resetting layout context.
-            // If the selection didn't actually change from a previous selection, don't wipe the file!
             if (e.RemovedItems.Count == 0 && !string.IsNullOrEmpty(_selectionService.OpponentTeam))
             {
                 return;
@@ -205,15 +202,12 @@ namespace WorldCupWPF
 
             if (cbFavTeam.SelectedItem is Team selectedTeam)
             {
-                // Check if the team selection is actually different from what's already saved.
-                // If it's the SAME team (just re-firing due to resize), KEEP the current opponent!
                 string opponentToSave = string.Empty;
                 if (_selectionService.Team == selectedTeam.FifaCode)
                 {
                     opponentToSave = _selectionService.OpponentTeam;
                 }
 
-                // Save safely without forcing a blind string.Empty wipe
                 _selectionService.Save(_selectionService.Gender, selectedTeam.FifaCode, opponentToSave, _selectionService.FavoritesByTeam);
 
                 await LoadOpponentsAsync(selectedTeam.FifaCode);
@@ -253,11 +247,8 @@ namespace WorldCupWPF
 
         private async void CbOpponentTeam_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // If the UI drops its selection state momentarily during layout updates,
-            // do NOT update the text file with a blank value.
             if (cbOpponentTeam.SelectedItem == null)
             {
-                // If we already have an active match running, layout is just recycling the control. Exit!
                 if (_currentActiveMatch != null || !string.IsNullOrEmpty(_selectionService.OpponentTeam))
                 {
                     return;
@@ -272,7 +263,6 @@ namespace WorldCupWPF
             {
                 try
                 {
-                    // Persist valid selections only
                     _selectionService.Save(_selectionService.Gender, favTeam.FifaCode, opponentTeam.FifaCode, _selectionService.FavoritesByTeam);
 
                     var matches = await _dataService.GetMatchesByTeamAsync(favTeam.FifaCode);

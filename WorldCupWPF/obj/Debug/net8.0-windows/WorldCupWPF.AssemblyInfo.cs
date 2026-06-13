@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WorldCupWPF")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9a9eb5ac3e96b33c054caf9e18ddbc6d0044a8f0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f60a41ffeb505b74d5958023f329c3253a9b777d")]
 [assembly: System.Reflection.AssemblyProductAttribute("WorldCupWPF")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WorldCupWPF")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

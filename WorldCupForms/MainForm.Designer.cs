@@ -47,23 +47,24 @@
             // 
             pHeader.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             pHeader.BackColor = Color.WhiteSmoke;
+            pHeader.BorderStyle = BorderStyle.FixedSingle;
             pHeader.Controls.Add(btnSettings);
             pHeader.Controls.Add(cbTeams);
             pHeader.Controls.Add(lbChooseTeam);
             pHeader.Location = new Point(0, 0);
             pHeader.Name = "pHeader";
-            pHeader.Size = new Size(2534, 100);
+            pHeader.Size = new Size(2534, 132);
             pHeader.TabIndex = 0;
             // 
             // btnSettings
             // 
             btnSettings.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnSettings.Font = new Font("Inter", 9F);
-            btnSettings.Location = new Point(2356, 30);
+            btnSettings.Location = new Point(2185, 42);
             btnSettings.Name = "btnSettings";
-            btnSettings.Size = new Size(150, 46);
+            btnSettings.Size = new Size(300, 60);
             btnSettings.TabIndex = 2;
-            btnSettings.Text = "Settings";
+            btnSettings.Text = "⚙ Settings";
             btnSettings.UseVisualStyleBackColor = true;
             btnSettings.Click += btnSettings_Click;
             // 
@@ -71,7 +72,7 @@
             // 
             cbTeams.Font = new Font("Inter", 9F);
             cbTeams.FormattingEnabled = true;
-            cbTeams.Location = new Point(319, 33);
+            cbTeams.Location = new Point(318, 52);
             cbTeams.Name = "cbTeams";
             cbTeams.Size = new Size(378, 43);
             cbTeams.TabIndex = 1;
@@ -80,7 +81,7 @@
             // 
             lbChooseTeam.AutoSize = true;
             lbChooseTeam.Font = new Font("Inter", 9F);
-            lbChooseTeam.Location = new Point(49, 36);
+            lbChooseTeam.Location = new Point(48, 55);
             lbChooseTeam.Name = "lbChooseTeam";
             lbChooseTeam.Size = new Size(229, 35);
             lbChooseTeam.TabIndex = 0;
@@ -101,7 +102,7 @@
             // flpFavorites
             // 
             flpFavorites.BackColor = Color.White;
-            flpFavorites.Location = new Point(0, 192);
+            flpFavorites.Location = new Point(0, 259);
             flpFavorites.Name = "flpFavorites";
             flpFavorites.Size = new Size(1024, 1050);
             flpFavorites.TabIndex = 4;
@@ -110,7 +111,7 @@
             // 
             flpAllPlayers.AutoScroll = true;
             flpAllPlayers.BackColor = Color.White;
-            flpAllPlayers.Location = new Point(1030, 192);
+            flpAllPlayers.Location = new Point(1030, 259);
             flpAllPlayers.Name = "flpAllPlayers";
             flpAllPlayers.Size = new Size(1504, 1050);
             flpAllPlayers.TabIndex = 5;
@@ -119,7 +120,7 @@
             // 
             lbFavouritePlayers.AutoSize = true;
             lbFavouritePlayers.Font = new Font("Inter", 14F, FontStyle.Bold);
-            lbFavouritePlayers.Location = new Point(319, 119);
+            lbFavouritePlayers.Location = new Point(327, 172);
             lbFavouritePlayers.Name = "lbFavouritePlayers";
             lbFavouritePlayers.Size = new Size(362, 54);
             lbFavouritePlayers.TabIndex = 3;
@@ -129,7 +130,7 @@
             // 
             lbAllPlayers.AutoSize = true;
             lbAllPlayers.Font = new Font("Inter", 14F, FontStyle.Bold);
-            lbAllPlayers.Location = new Point(1686, 119);
+            lbAllPlayers.Location = new Point(1694, 172);
             lbAllPlayers.Name = "lbAllPlayers";
             lbAllPlayers.Size = new Size(229, 54);
             lbAllPlayers.TabIndex = 6;
@@ -138,9 +139,9 @@
             // btnViewRankings
             // 
             btnViewRankings.Font = new Font("Inter", 9F);
-            btnViewRankings.Location = new Point(49, 1374);
+            btnViewRankings.Location = new Point(49, 1376);
             btnViewRankings.Name = "btnViewRankings";
-            btnViewRankings.Size = new Size(499, 46);
+            btnViewRankings.Size = new Size(499, 97);
             btnViewRankings.TabIndex = 7;
             btnViewRankings.Text = "View Rankings and Reports";
             btnViewRankings.UseVisualStyleBackColor = true;

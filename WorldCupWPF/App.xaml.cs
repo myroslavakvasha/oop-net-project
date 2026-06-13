@@ -14,7 +14,6 @@ namespace WorldCupWPF
         {
             base.OnStartup(e);
 
-            // Prevent WPF from shutting down when SettingsWindow closes
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
             var configService = new ConfigService();
@@ -44,7 +43,6 @@ namespace WorldCupWPF
                 mainWindow.Height = settingsService.Height > 0 ? settingsService.Height : 720;
             }
 
-            // Now hand control back to normal shutdown behavior
             ShutdownMode = ShutdownMode.OnMainWindowClose;
             Application.Current.MainWindow = mainWindow;
             mainWindow.Show();
