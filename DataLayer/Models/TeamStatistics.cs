@@ -27,7 +27,7 @@ namespace DataLayer.Models
         public int Blocked { get; set; }
 
         [JsonPropertyName("woodwork")]
-        public int Woodwork { get; set; }
+        public int? Woodwork { get; set; }
 
         [JsonPropertyName("corners")]
         public int Corners { get; set; }
@@ -51,16 +51,16 @@ namespace DataLayer.Models
         public int DistanceCovered { get; set; }
 
         [JsonPropertyName("balls_recovered")]
-        public int BallsRecovered { get; set; }
+        public int? BallsRecovered { get; set; }
 
         [JsonPropertyName("tackles")]
         public int Tackles { get; set; }
 
         [JsonPropertyName("clearances")]
-        public int Clearances { get; set; }
+        public int? Clearances { get; set; }
 
         [JsonPropertyName("yellow_cards")]
-        public int YellowCards { get; set; }
+        public int? YellowCards { get; set; }
 
         [JsonPropertyName("red_cards")]
         public int RedCards { get; set; }

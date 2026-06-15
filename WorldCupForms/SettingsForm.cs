@@ -20,14 +20,11 @@ namespace WorldCupForms
             InitializeComponent();
             _selectionService = new SelectionService();
 
-            // 1. Force a strict reload from disk
             _selectionService.Load();
 
-            // 2. Clear both out explicitly 
             rbMale.Checked = false;
             rbFemale.Checked = false;
 
-            // 3. Set the checks safely inside the constructor before WinForms sets autofocus
             string activeGender = _selectionService.Gender?.Trim().ToLower() ?? "male";
             if (activeGender == "female")
             {
@@ -43,12 +40,10 @@ namespace WorldCupForms
 
         private void SettingsForm_Load(object sender, EventArgs e)
         {
-            // Leave this completely blank! Do not put any checkbox logic here.
         }
 
         private void SetupKeyboardShortcuts()
         {
-            // Bind Enter key to Confirm and Esc key to Cancel as requested by the assignment
             this.AcceptButton = btnConfirm;
             this.CancelButton = btnCancel;
         }
@@ -65,10 +60,13 @@ namespace WorldCupForms
             {
                 string selectedGender = rbFemale.Checked ? "female" : "male";
 
-                // FIX: Added string.Empty as the 3rd argument for the opponent slot
+                string teamToSave = selectedGender == "female"
+                    ? _selectionService.FemaleTeam
+                    : _selectionService.MaleTeam;
+
                 _selectionService.Save(
                     selectedGender,
-                    _selectionService.Team,
+                    teamToSave,
                     string.Empty,
                     _selectionService.FavoritesByTeam
                 );

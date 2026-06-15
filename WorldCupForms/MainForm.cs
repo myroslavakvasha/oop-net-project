@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WorldCupForms
 {
@@ -18,7 +19,7 @@ namespace WorldCupForms
         private readonly DataService _dataService;
         private readonly SelectionService _selectionService;
         private readonly SettingsService _settingsService;
-        private bool _isReloading = false;
+        private bool _isReloading = false; // used when changing stuff in settings form
 
         public MainForm()
         {
@@ -65,7 +66,12 @@ namespace WorldCupForms
                 cbTeams.SelectedIndexChanged += cbTeams_SelectedIndexChanged;
 
                 if (cbTeams.SelectedItem is Team selected)
+                {
+                    if (string.IsNullOrEmpty(_selectionService.Team))
+                        _selectionService.Save(_selectionService.Gender, selected.FifaCode, string.Empty, _selectionService.FavoritesByTeam);
+
                     await LoadTeamDataAsync(selected);
+                }
             }
             catch (Exception ex)
             {
@@ -148,13 +154,16 @@ namespace WorldCupForms
 
         private void OnFavoriteToggled(object? sender, Player player)
         {
-            var currentTeam = _selectionService.Team;
-            var currentFavs = _selectionService.GetFavorites(currentTeam);
+            // currently displayed team's fifa code, not the saved one
+            if (cbTeams.SelectedItem is not Team currentTeam) return;
+            var currentFifaCode = currentTeam.FifaCode;
+
+            var currentFavs = _selectionService.GetFavorites(currentFifaCode);
 
             if (currentFavs.Contains(player.Name))
             {
                 currentFavs.Remove(player.Name);
-                _selectionService.SaveFavorites(currentTeam, currentFavs);
+                _selectionService.SaveFavorites(currentFifaCode, currentFavs);
 
                 var card = flpFavorites.Controls
                     .OfType<PlayerCardControl>()
@@ -176,7 +185,7 @@ namespace WorldCupForms
                 }
 
                 currentFavs.Add(player.Name);
-                _selectionService.SaveFavorites(currentTeam, currentFavs);
+                _selectionService.SaveFavorites(currentFifaCode, currentFavs);
 
                 var card = flpAllPlayers.Controls
                     .OfType<PlayerCardControl>()
@@ -191,6 +200,8 @@ namespace WorldCupForms
             }
         }
 
+        // checks if the dragged data is a PlayerCardControl; if yes, sets effect to Move, otherwise None
+        // this is what makes the drop target "accept" the drag
         private void Panel_DragEnter(object? sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(typeof(PlayerCardControl)))
@@ -199,6 +210,7 @@ namespace WorldCupForms
                 e.Effect = DragDropEffects.None;
         }
 
+        // handles dropping onto the favorites panel
         private void FavoritesPanel_DragDrop(object? sender, DragEventArgs e)
         {
             var card = e.Data.GetData(typeof(PlayerCardControl)) as PlayerCardControl;
@@ -210,8 +222,8 @@ namespace WorldCupForms
                 .Where(c => c.IsSelected || c == card)
                 .ToList();
 
-            var currentTeam = (_selectionService.Team);
-            var currentFavs = _selectionService.GetFavorites(currentTeam);
+            if (cbTeams.SelectedItem is not Team currentTeam) return;
+            var currentFavs = _selectionService.GetFavorites(currentTeam.FifaCode);
 
             if (currentFavs.Count + selectedCards.Count > 3)
             {
@@ -228,9 +240,10 @@ namespace WorldCupForms
                 currentFavs.Add(c.Player.Name);
             }
 
-            _selectionService.SaveFavorites(currentTeam, currentFavs);
+            _selectionService.SaveFavorites(currentTeam.FifaCode, currentFavs);
         }
 
+        // moves selected cards from favorites back to all-players, removes them from the saved favorites list
         private void AllPlayersPanel_DragDrop(object? sender, DragEventArgs e)
         {
             var card = e.Data.GetData(typeof(PlayerCardControl)) as PlayerCardControl;
@@ -242,8 +255,8 @@ namespace WorldCupForms
                 .Where(c => c.IsSelected || c == card)
                 .ToList();
 
-            var currentTeam = _selectionService.Team;
-            var currentFavs = _selectionService.GetFavorites(currentTeam);
+            if (cbTeams.SelectedItem is not Team currentTeam) return;
+            var currentFavs = _selectionService.GetFavorites(currentTeam.FifaCode);
 
             foreach (var c in selectedCards)
             {
@@ -254,7 +267,7 @@ namespace WorldCupForms
                 currentFavs.Remove(c.Player.Name);
             }
 
-            _selectionService.SaveFavorites(currentTeam, currentFavs);
+            _selectionService.SaveFavorites(currentTeam.FifaCode, currentFavs);
         }
 
         private async void btnSettings_Click(object sender, EventArgs e)
@@ -290,9 +303,7 @@ namespace WorldCupForms
                         {
                             var saved = orderedTeams.FirstOrDefault(t => t.FifaCode == savedTeamCode);
                             if (saved != null)
-                            {
                                 cbTeams.SelectedItem = saved;
-                            }
                         }
                         else
                         {
@@ -300,13 +311,10 @@ namespace WorldCupForms
                         }
 
                         cbTeams.SelectedIndexChanged += cbTeams_SelectedIndexChanged;
-
                         _isReloading = false;
 
                         if (cbTeams.SelectedItem is Team selected)
-                        {
                             await LoadTeamDataAsync(selected);
-                        }
                     }
                     catch (Exception ex)
                     {

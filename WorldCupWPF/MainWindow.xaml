@@ -8,6 +8,7 @@
         Title="World Cup Statistics" Height="768" Width="1024"
         WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
 
+    <!--reusable styles-->
     <Window.Resources>
         <Style x:Key="TextOnlyButtonStyle" TargetType="Button">
             <Setter Property="Foreground" Value="#334155"/>
